@@ -1,0 +1,6 @@
+[submodule "bluebeam"]
+	path = bluebeam
+	url = git@github.com:longfellowone/bluebeam.git
+[submodule "estimate"]
+	path = estimate
+	url = git@github.com:longfellowone/estimate.git
