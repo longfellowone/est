@@ -1,0 +1,83 @@
+lazy static -> testapp::new() { start testcontainer }
+
+somehow create a new database per test
+
+
+
+--
+
+
+testapp {
+db_pool
+}
+
+
+testapp::new() { create new test_uuidv4 db, run migrations, start server in new thread,  }
+
+impl Drop for testapp, drop temp DB
+
+
+
+---
+
+// use once_cell::sync::Lazy;
+// optional (might have to use lazy static?)
+sync_lazy -> DB = start_db(start test container then -> PgConnectOptions::new())
+
+fn new() -> testapp {
+	let database = uuidv4
+
+	let db_settings = DB()
+	
+	let conn = PgConnection::connect_with(db_settings)
+	conn.create_database(database)
+
+	let db_pool = PgPool::connect()
+
+	run_migrations().run(pool)
+
+	let address = start_server()
+	
+	testapp {
+		address
+		port
+		db_pool
+	}
+}
+
+test() {
+	conn = testapp::new()
+}
+
+// drop not required if using test containers
+
+
+-------
+
+
+
+impl TestDb {
+    fn new(url) -> Self {
+         let mut con = DbConnection::to(url);
+         con.execute(cleanup_queries);
+         TestDb { con }
+    }
+    fn get_con(&self) -> DbConnection {
+        self.con.clone()
+    }    
+}
+lazy_static! {
+     static ref TEST_DB : TestDb = TestDb::new("some_url");
+}```
+
+And then the tests do this:
+```#[test]
+fn db_foo() {
+    let mut con = TEST_DB.get_con();
+    con.execute(create_schema_query);
+    con.execute(more_queries);
+}```
+
+That way, the first test that is run and needs the Db will call the setup code. All the others can just use the Db normally.
+
+If you want to clean up after the tests instead of before, you could impl Drop for TestDb. However, be aware that destructors will not run always be run, for example if your program is terminated ungracefully.
