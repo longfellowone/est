@@ -1,3 +1,18 @@
+https://www.postgresqltutorial.com/postgresql-create-table/
+https://learnsql.com/blog/how-to-join-3-tables-or-more-in-sql/
+
+** INNER JOIN?
+SELECT
+  student.first_name,
+  student.last_name,
+  course.name
+FROM student
+JOIN student_course
+  ON student.id = student_course.student_id
+JOIN course
+  ON course.id = student_course.course_id;
+
+
 lazy static -> testapp::new() { start testcontainer }
 
 somehow create a new database per test
