@@ -3,6 +3,25 @@
 // http://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/second-edition/ch11-03-test-organization.html
 // https://joshleeb.com/posts/rust-integration-tests.html
 
-fn main() {
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions, PgSslMode};
+
+#[actix_web::main]
+async fn main() {
+    let pg_options = PgConnectOptions::new()
+        .username("postgres")
+        .password("postgres")
+        .host("127.0.0.1")
+        .port(5432)
+        .database("postgres")
+        .ssl_mode(PgSslMode::Prefer);
+
+    let pg_pool = PgPoolOptions::new()
+        .connect_timeout(std::time::Duration::from_secs(10))
+        .connect_with(pg_options)
+        .await
+        .unwrap();
+
+    sqlx::migrate!().run(&pg_pool).await.unwrap();
+
     println!("Hello, world!");
 }
