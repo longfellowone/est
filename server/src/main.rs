@@ -4,6 +4,7 @@
 // https://joshleeb.com/posts/rust-integration-tests.html
 
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions, PgSslMode};
+use sqlx::FromRow;
 use uuid::Uuid;
 
 #[actix_web::main]
@@ -24,13 +25,13 @@ async fn main() {
 
     sqlx::migrate!().run(&pg_pool).await.unwrap();
 
-    #[derive(Debug)]
-    struct Projects {
+    #[derive(Debug, FromRow)]
+    struct Project {
         id: Uuid,
         name: String,
     }
 
-    let res = sqlx::query_as!(Projects, "SELECT id, name FROM projects")
+    let res = sqlx::query_as::<_, Project>("SELECT id, name FROM projects")
         .fetch_all(&pg_pool)
         .await
         .unwrap();
