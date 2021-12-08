@@ -3,6 +3,7 @@
 // http://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/second-edition/ch11-03-test-organization.html
 // https://joshleeb.com/posts/rust-integration-tests.html
 
+use chrono::{DateTime, Utc};
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions, PgSslMode};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -23,19 +24,23 @@ async fn main() {
         .await
         .unwrap();
 
-    sqlx::migrate!().run(&pg_pool).await.unwrap();
+    // sqlx::migrate!().run(&pg_pool).await.unwrap();
 
     #[derive(Debug, FromRow)]
     struct Project {
         id: Uuid,
         name: String,
+        updated_at: DateTime<Utc>,
     }
 
-    // Setup AirByte
+    println!("{}", Utc::now());
+    println!("{}", Utc::now());
+    println!("{}", Utc::now());
+
     // Setup products. Then setup assemblies. Then estimates. Then projects
     // https://www.one-tab.com/page/GH3FJHoARRe1_t48x6FyxA
 
-    let res = sqlx::query_as::<_, Project>("SELECT id, name FROM projects")
+    let res = sqlx::query_as::<_, Project>("SELECT id, name, updated_at FROM projects")
         .fetch_all(&pg_pool)
         .await
         .unwrap();
