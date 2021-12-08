@@ -31,6 +31,10 @@ async fn main() {
         name: String,
     }
 
+    // Setup AirByte
+    // Setup products. Then setup assemblies. Then estimates. Then projects
+    // https://www.one-tab.com/page/GH3FJHoARRe1_t48x6FyxA
+
     let res = sqlx::query_as::<_, Project>("SELECT id, name FROM projects")
         .fetch_all(&pg_pool)
         .await
