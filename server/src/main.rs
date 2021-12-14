@@ -1,12 +1,13 @@
+#![allow(dead_code)]
 // https://github.com/LukeMathWalker/zero-to-production/blob/main/tests/api/helpers.rs
 // https://github.com/diesel-rs/diesel/blob/75c688c3b246295f6f7182e0fec1b58cc685b4ed/diesel_tests/tests/select.rs
 // http://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/second-edition/ch11-03-test-organization.html
 // https://joshleeb.com/posts/rust-integration-tests.html
 
-use chrono::{DateTime, Utc};
+// use chrono::{DateTime, Utc};
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions, PgSslMode};
-use sqlx::FromRow;
-use uuid::Uuid;
+// use sqlx::FromRow;
+// use uuid::Uuid;
 
 #[actix_web::main]
 async fn main() {
@@ -26,24 +27,52 @@ async fn main() {
 
     // sqlx::migrate!().run(&pg_pool).await.unwrap();
 
-    #[derive(Debug, FromRow)]
-    struct Project {
-        id: Uuid,
-        name: String,
-        updated_at: DateTime<Utc>,
-    }
-
-    println!("{}", Utc::now());
-    println!("{}", Utc::now());
-    println!("{}", Utc::now());
-
     // Setup products. Then setup assemblies. Then estimates. Then projects
     // https://www.one-tab.com/page/GH3FJHoARRe1_t48x6FyxA
 
-    let res = sqlx::query_as::<_, Project>("SELECT id, name, updated_at FROM projects")
-        .fetch_all(&pg_pool)
-        .await
-        .unwrap();
+    #[derive(Debug)]
+    struct Estimate {
+        id: i32,
+        estimate: String,
+        // assemblies: Vec<Assembly>,
+    }
 
-    println!("{:?}", res[0]);
+    #[derive(Debug)]
+    struct Assembly {
+        id: i32,
+        assembly: String,
+    }
+
+    let estimate_id = 1;
+
+    let estimate = sqlx::query_as!(
+        Estimate,
+        r#"
+        SELECT id, estimate
+        FROM estimates 
+        WHERE id = $1
+        "#,
+        estimate_id
+    )
+    .fetch_one(&pg_pool)
+    .await
+    .unwrap();
+
+    println!("{:?}", estimate);
+
+    let assemblies = sqlx::query_as!(
+        Assembly,
+        r#"
+        SELECT a.id, a.assembly
+        FROM assemblies a 
+        INNER JOIN estimate_assemblies ea on a.id = ea.assembly_id 
+        WHERE ea.estimate_id = $1
+        "#,
+        estimate_id
+    )
+    .fetch_all(&pg_pool)
+    .await
+    .unwrap();
+
+    println!("{:?}", assemblies)
 }
