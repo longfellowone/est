@@ -9,6 +9,12 @@ use sqlx::postgres::{PgConnectOptions, PgPoolOptions, PgSslMode};
 // use sqlx::FromRow;
 // use uuid::Uuid;
 
+// GET /articles/3
+// {
+// "title": "whatever",
+// "comments": "/comments?article=3"
+// }
+
 #[actix_web::main]
 async fn main() {
     let pg_options = PgConnectOptions::new()
