@@ -15,6 +15,20 @@ use sqlx::postgres::{PgConnectOptions, PgPoolOptions, PgSslMode};
 // "comments": "/comments?article=3"
 // }
 
+// query!("...").map(|row| Foo { id: row.id, bar: Bar { price: row.price } }).fetch_all(&mut conn).await?;
+
+// sqlx::query!("SELECT * ... ").map(|row| A {
+// id: row.id,
+// b: row.b.map(|b| B { b: b }),
+// }).fetch_all(&mut conn).await?;
+
+// query_as!(XRow, "....").map(X::from)
+
+// https://gitlab.com/-/snippets/2062535
+
+// what we usually do is write a flat struct with all the columns for use
+// with QueryAs and then write a method that converts that into the nested structure you actually want
+
 #[actix_web::main]
 async fn main() {
     let pg_options = PgConnectOptions::new()
