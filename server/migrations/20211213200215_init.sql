@@ -14,7 +14,8 @@ CREATE TABLE estimate_assemblies
 (
     estimate_id int REFERENCES estimates (id) ON UPDATE CASCADE ON DELETE CASCADE,
     assembly_id int REFERENCES assemblies (id) ON UPDATE CASCADE,
-    quantity    int NOT NULL
+    quantity    int NOT NULL,
+    PRIMARY KEY (estimate_id, assembly_id)
 );
 
 INSERT INTO estimates (id, estimate)

@@ -61,6 +61,7 @@ async fn main() {
     struct Assembly {
         id: i32,
         assembly: String,
+        quantity: i32,
     }
 
     let estimate_id = 1;
@@ -83,16 +84,17 @@ async fn main() {
     let assemblies = sqlx::query_as!(
         Assembly,
         r#"
-        SELECT a.id, a.assembly
+        SELECT a.id as "id!", a.assembly as "assembly!", ea.quantity as "quantity!"
         FROM assemblies a 
         INNER JOIN estimate_assemblies ea on a.id = ea.assembly_id 
-        WHERE ea.estimate_id = $1
-        "#,
-        estimate_id
+--         WHERE ea.estimate_id = $1
+        "# // estimate_id
     )
     .fetch_all(&pg_pool)
     .await
     .unwrap();
 
-    println!("{:?}", assemblies)
+    for assembly in assemblies {
+        println!("{:?}", assembly)
+    }
 }
