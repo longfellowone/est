@@ -6,11 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-estimate = { path = "../estimate" }
-dotenv = "0.15.0"
-sqlx = { version = "0.5", features = ["runtime-actix-rustls", "postgres", "uuid", "migrate", "macros", "offline", "chrono"] }
-actix-web = { version = "4.0.0-beta.13", features = ["rustls"] }
-uuid = "0.8.2"
-anyhow = "1.0.51"
 serde = { version = "1.0", features = ["derive"] }
+anyhow = "1.0.51"
+actix-web = { version = "4.0.0-beta.13", features = ["rustls"] }
+actix-cors = "0.6.0-beta.6"
+sqlx = { version = "0.5", features = ["runtime-actix-rustls", "postgres", "uuid", "migrate", "macros", "offline", "chrono"] }
+uuid = "0.8.2"
 chrono = "0.4.19"
