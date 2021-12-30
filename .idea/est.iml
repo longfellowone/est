@@ -6,11 +6,13 @@
       <sourceFolder url="file://$MODULE_DIR$/daemon/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/estimate/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/server/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/server2/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/bluebeam/target" />
       <excludeFolder url="file://$MODULE_DIR$/daemon/target" />
       <excludeFolder url="file://$MODULE_DIR$/estimate/target" />
       <excludeFolder url="file://$MODULE_DIR$/server/target" />
+      <excludeFolder url="file://$MODULE_DIR$/server2/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

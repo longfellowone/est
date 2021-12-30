@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     // let config = Configuration::new()?;
     let listener = TcpListener::bind("127.0.0.1:8080")?;
 
-    println!("Starting server...");
+    println!("Starting server... {}", "my string");
 
     // TODO: let app = App::new(config) -> app.run()
     server::run(listener)?.await?;
