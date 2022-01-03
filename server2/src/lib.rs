@@ -36,6 +36,7 @@ impl App {
 async fn index() -> String {
     "Hello, World!".to_string()
 }
+// Add description to assembly
 
 // zero2prod axum
 // https://github.com/mattiapenati/zero2prod/tree/main/src
