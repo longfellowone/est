@@ -1,6 +1,8 @@
 use crate::configuration::Configuration;
+use axum::http::StatusCode;
 use axum::{routing::get, Router};
 use std::net::TcpListener;
+use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
 pub mod configuration;
@@ -15,15 +17,19 @@ impl App {
     pub fn new(config: Configuration) -> Self {
         let listener = TcpListener::bind(config.address()).unwrap();
 
-        let app = Router::new()
+        let routes = Router::new()
             .route("/", get(index))
-            .layer(TraceLayer::new_for_http());
+            .route("/health_check", get(health_check));
+
+        let middleware = ServiceBuilder::new().layer(TraceLayer::new_for_http());
+
+        let app = Router::new().merge(routes).layer(middleware);
 
         App { app, listener }
     }
 
     pub async fn run(self) {
-        tracing::debug!("listening on {:?}", self.listener.local_addr());
+        tracing::debug!("listening on {:?}", self.listener.local_addr().unwrap());
 
         axum::Server::from_tcp(self.listener)
             .unwrap()
@@ -36,6 +42,11 @@ impl App {
 async fn index() -> String {
     "Hello, World!".to_string()
 }
+
+async fn health_check() -> StatusCode {
+    StatusCode::OK
+}
+
 // Add description to assembly
 
 // zero2prod axum

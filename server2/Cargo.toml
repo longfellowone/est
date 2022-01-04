@@ -12,7 +12,7 @@ chrono = "0.4.19"
 axum = "0.4.3"
 hyper = { version = "0.14.16", features = ["full"] }
 tokio = { version = "1.15.0", features = ["full"] }
-#tower = { version = "0.4.11" }
+tower = { version = "0.4.11" }
 tower-http = { version = "0.2.0", features = ["trace", "add-extension"]}
 tracing = "0.1.29"
 tracing-subscriber = { version = "0.3.4", features=["env-filter"]}
