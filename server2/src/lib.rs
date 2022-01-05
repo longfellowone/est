@@ -9,7 +9,7 @@ pub mod configuration;
 mod postgres;
 
 pub struct App {
-    app: Router,
+    router: Router,
     listener: TcpListener,
 }
 
@@ -21,11 +21,13 @@ impl App {
             .route("/", get(index))
             .route("/health_check", get(health_check));
 
+        // Run migrations
+
         let middleware = ServiceBuilder::new().layer(TraceLayer::new_for_http());
 
-        let app = Router::new().merge(routes).layer(middleware);
+        let router = Router::new().merge(routes).layer(middleware);
 
-        App { app, listener }
+        App { router, listener }
     }
 
     pub async fn run(self) {
@@ -33,7 +35,7 @@ impl App {
 
         axum::Server::from_tcp(self.listener)
             .unwrap()
-            .serve(self.app.into_make_service())
+            .serve(self.router.into_make_service())
             .await
             .unwrap();
     }
@@ -45,6 +47,30 @@ async fn index() -> String {
 
 async fn health_check() -> StatusCode {
     StatusCode::OK
+}
+
+// Add tracing using LAZY
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::body::Body;
+    use axum::http::Request;
+    use tower::ServiceExt;
+
+    #[tokio::test]
+    async fn health_check() {
+        let app = App::new(Configuration::test());
+
+        let request = Request::builder()
+            .method("GET")
+            .uri("/health_check")
+            .body(Body::empty())
+            .unwrap();
+
+        let response = app.router.oneshot(request).await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK)
+    }
 }
 
 // Add description to assembly
