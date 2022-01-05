@@ -1,3 +1,4 @@
+# CTRL+ALT+L
 [package]
 name = "server2"
 version = "0.1.0"
@@ -6,15 +7,15 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0.132", features = ["derive"] }
 anyhow = "1.0.52"
-sqlx = { version = "0.5.9", features = ["runtime-tokio-rustls","postgres", "uuid", "migrate", "macros", "offline", "chrono"] }
+sqlx = { version = "0.5.9", features = ["runtime-tokio-rustls", "postgres", "uuid", "migrate", "macros", "offline", "chrono"] }
 uuid = "0.8.2"
 chrono = "0.4.19"
-axum = "0.4.3"
+axum = { version = "0.4.3", features = ["http2"] }
 hyper = { version = "0.14.16", features = ["full"] }
 tokio = { version = "1.15.0", features = ["full"] }
 tower = { version = "0.4.11" }
-tower-http = { version = "0.2.0", features = ["trace", "add-extension"]}
+tower-http = { version = "0.2.0", features = ["trace", "add-extension"] }
 tracing = "0.1.29"
-tracing-subscriber = { version = "0.3.4", features=["env-filter"]}
+tracing-subscriber = { version = "0.3.4", features = ["env-filter"] }
 env_logger = "0.9.0"
 log = "0.4.14"
