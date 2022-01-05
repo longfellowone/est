@@ -23,6 +23,7 @@ impl App {
 
         // Run migrations
 
+        // Need to call .into_inner() ?
         let middleware = ServiceBuilder::new().layer(TraceLayer::new_for_http());
 
         let router = Router::new().merge(routes).layer(middleware);
@@ -50,6 +51,7 @@ async fn health_check() -> StatusCode {
 }
 
 // Add tracing using LAZY
+// https://github.com/tokio-rs/axum/blob/main/examples/testing/src/main.rs
 #[cfg(test)]
 mod tests {
     use super::*;
