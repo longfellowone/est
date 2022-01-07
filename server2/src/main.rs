@@ -1,12 +1,8 @@
+use server2::configuration::{Http, Postgres};
 use server2::{configuration::Configuration, App};
 
 #[tokio::main]
-async fn main() {
-    // error   you need        to do something
-    // warn    you might need  to do something
-    // info    you need        to log this in production
-    // debug   you might need  to log this in production
-    // trace   everything that is happening (no performance concerns)
+async fn main() -> hyper::Result<()> {
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "server2=debug,tower_http=debug");
     }
@@ -14,9 +10,21 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     let config = Configuration {
-        host: "0.0.0.0".to_string(),
-        port: 8080,
+        http: Http {
+            host: "127.0.0.1".to_string(),
+            port: 8080,
+        },
+        postgres: Postgres {
+            host: "127.0.0.1".to_string(),
+            port: 5432,
+            user: "postgres".to_string(),
+            password: "password".to_string(),
+            database: "".to_string(),
+            sslmode: false,
+        },
     };
 
-    App::new(config).run().await
+    let app = App::new(config).await;
+
+    app.run().await
 }
