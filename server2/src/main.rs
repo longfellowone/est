@@ -18,8 +18,8 @@ async fn main() -> hyper::Result<()> {
             host: "127.0.0.1".to_string(),
             port: 5432,
             user: "postgres".to_string(),
-            password: "password".to_string(),
-            database: "".to_string(),
+            password: "postgres".to_string(),
+            database: "postgres".to_string(),
             sslmode: false,
         },
     };

@@ -1,4 +1,5 @@
 use sqlx::postgres::{PgConnectOptions, PgSslMode};
+use uuid::Uuid;
 
 pub struct Configuration {
     pub http: Http,
@@ -17,7 +18,7 @@ impl Configuration {
                 port: 5432,
                 user: "postgres".to_string(),
                 password: "postgres".to_string(),
-                database: "app".to_string(),
+                database: format!("test_{}", Uuid::new_v4().to_string().replace('-', "")),
                 sslmode: false,
             },
         }
@@ -46,12 +47,15 @@ pub struct Postgres {
 
 impl Postgres {
     pub fn connect_options(&self) -> PgConnectOptions {
+        self.connect_options_without_db().database(&self.database)
+    }
+
+    pub fn connect_options_without_db(&self) -> PgConnectOptions {
         PgConnectOptions::new()
-            .username("postgres")
-            .password("postgres")
-            .host("127.0.0.1")
-            .port(5432)
-            .database("postgres")
+            .username(&self.user)
+            .password(&self.password)
+            .host(&self.host)
+            .port(self.port)
             .ssl_mode(PgSslMode::Prefer)
     }
 }
