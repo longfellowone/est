@@ -2,6 +2,7 @@ use crate::configuration::Configuration;
 use axum::http::StatusCode;
 use axum::{routing::get, AddExtensionLayer, Router};
 use sqlx::postgres::PgPoolOptions;
+use sqlx::{Connection, Executor, PgConnection};
 use std::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
@@ -18,12 +19,18 @@ impl App {
     pub async fn new(config: Configuration) -> Self {
         let listener = TcpListener::bind(&config.http.address()).unwrap();
 
+        let mut conn = PgConnection::connect_with(&config.postgres.connect_options_without_db())
+            .await
+            .unwrap();
+
+        conn.execute(format!("CREATE DATABASE {};", &config.postgres.database).as_str())
+            .await
+            .ok();
+
         let pg_pool = PgPoolOptions::new()
             .connect_timeout(std::time::Duration::from_secs(2))
             .connect_lazy_with(config.postgres.connect_options());
 
-        // TODO: migration needs database to exist before it can connect for migrations
-        // TODO: use TestApp in /tests
         sqlx::migrate!("./migrations").run(&pg_pool).await.unwrap();
 
         let middleware = ServiceBuilder::new()
