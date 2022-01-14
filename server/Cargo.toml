@@ -6,6 +6,7 @@ edition = "2021"
 
 [dependencies]
 serde = { version = "1.0.132", features = ["derive"] }
+serde_json = "1.0.74"
 anyhow = "1.0.52"
 sqlx = { version = "0.5.9", features = ["runtime-tokio-rustls", "postgres", "uuid", "migrate", "macros", "offline", "chrono"] }
 uuid = { version = "0.8.2", features = ["v4"] }

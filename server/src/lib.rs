@@ -1,8 +1,7 @@
-use crate::config::{Configuration, Postgres};
+use crate::config::Configuration;
 use axum::http::StatusCode;
 use axum::{routing::get, AddExtensionLayer, Router};
-use sqlx::postgres::PgPoolOptions;
-use sqlx::{Connection, Executor, PgConnection, PgPool};
+
 use std::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
@@ -17,7 +16,7 @@ pub struct App {
 
 impl App {
     pub async fn new(config: Configuration) -> Self {
-        let pg_pool = initialize_postgres(config.postgres).await;
+        let pg_pool = config.postgres.initialize().await;
 
         let middleware = ServiceBuilder::new()
             .layer(TraceLayer::new_for_http())
@@ -49,24 +48,6 @@ fn initialize_routes() -> Router {
         .route("/projects/:id", get(projects::get).delete(projects::delete))
 }
 
-async fn initialize_postgres(postgres: Postgres) -> PgPool {
-    let mut conn = PgConnection::connect_with(&postgres.connect_options_without_db())
-        .await
-        .unwrap();
-
-    conn.execute(format!("CREATE DATABASE {};", &postgres.database).as_str())
-        .await
-        .ok();
-
-    let pg_pool = PgPoolOptions::new()
-        .connect_timeout(std::time::Duration::from_secs(2))
-        .connect_lazy_with(postgres.connect_options());
-
-    sqlx::migrate!("./migrations").run(&pg_pool).await.unwrap();
-
-    pg_pool
-}
-
 async fn health_check() -> StatusCode {
     StatusCode::OK
 }
@@ -90,9 +71,11 @@ mod tests {
             .unwrap();
 
         let response = app.router.oneshot(request).await.unwrap();
+
         assert_eq!(response.status(), StatusCode::OK);
 
         let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+
         assert!(body.is_empty())
     }
 }

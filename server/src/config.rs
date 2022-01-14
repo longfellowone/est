@@ -1,4 +1,5 @@
-use sqlx::postgres::{PgConnectOptions, PgSslMode};
+use sqlx::postgres::{PgConnectOptions, PgConnection, PgPoolOptions, PgSslMode};
+use sqlx::{Connection, Executor, PgPool};
 use uuid::Uuid;
 
 pub struct Configuration {
@@ -43,6 +44,26 @@ pub struct Postgres {
     pub password: String,
     pub database: String,
     pub sslmode: bool,
+}
+
+impl Postgres {
+    pub async fn initialize(&self) -> PgPool {
+        let mut conn = PgConnection::connect_with(&self.connect_options_without_db())
+            .await
+            .unwrap();
+
+        conn.execute(format!("CREATE DATABASE {};", &self.database).as_str())
+            .await
+            .ok();
+
+        let pg_pool = PgPoolOptions::new()
+            .connect_timeout(std::time::Duration::from_secs(2))
+            .connect_lazy_with(self.connect_options());
+
+        sqlx::migrate!("./migrations").run(&pg_pool).await.unwrap();
+
+        pg_pool
+    }
 }
 
 impl Postgres {
