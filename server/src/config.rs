@@ -48,7 +48,7 @@ pub struct Postgres {
 
 impl Postgres {
     pub async fn initialize(&self) -> PgPool {
-        let mut conn = PgConnection::connect_with(&self.connect_options_without_db())
+        let mut conn = PgConnection::connect_with(&self.connect_options())
             .await
             .unwrap();
 
@@ -58,25 +58,23 @@ impl Postgres {
 
         let pg_pool = PgPoolOptions::new()
             .connect_timeout(std::time::Duration::from_secs(2))
-            .connect_lazy_with(self.connect_options());
+            .connect_lazy_with(self.connect_options_with_db());
 
         sqlx::migrate!("./migrations").run(&pg_pool).await.unwrap();
 
         pg_pool
     }
-}
 
-impl Postgres {
     pub fn connect_options(&self) -> PgConnectOptions {
-        self.connect_options_without_db().database(&self.database)
-    }
-
-    pub fn connect_options_without_db(&self) -> PgConnectOptions {
         PgConnectOptions::new()
             .username(&self.user)
             .password(&self.password)
             .host(&self.host)
             .port(self.port)
             .ssl_mode(PgSslMode::Prefer)
+    }
+
+    pub fn connect_options_with_db(&self) -> PgConnectOptions {
+        self.connect_options().database(&self.database)
     }
 }

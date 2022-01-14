@@ -1033,6 +1033,7 @@ dependencies = [
  "env_logger",
  "hyper",
  "log",
+ "mime",
  "serde",
  "serde_json",
  "sqlx",

@@ -45,7 +45,12 @@ fn initialize_routes() -> Router {
     Router::new()
         .route("/health_check", get(health_check))
         .route("/projects", get(projects::list).post(projects::create))
-        .route("/projects/:id", get(projects::get).delete(projects::delete))
+        .route(
+            "/projects/:id",
+            get(projects::get)
+                .post(projects::update)
+                .delete(projects::delete),
+        )
 }
 
 async fn health_check() -> StatusCode {
