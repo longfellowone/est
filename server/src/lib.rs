@@ -39,6 +39,8 @@ impl App {
             .serve(self.router.into_make_service())
             .await
     }
+
+    // Add address and port method
 }
 
 fn initialize_routes() -> Router {

@@ -61,6 +61,13 @@ impl Project {
 
         project
     }
+
+    async fn delete(id: i32, pg_pool: PgPool) {
+        sqlx::query!("DELETE FROM project WHERE id = $1", id)
+            .execute(&pg_pool)
+            .await
+            .unwrap();
+    }
 }
 
 pub async fn list(Extension(pg_pool): Extension<PgPool>) -> impl IntoResponse {
@@ -84,10 +91,16 @@ pub async fn create(
     (StatusCode::CREATED, Json(project))
 }
 
-pub async fn delete() {
-    unimplemented!()
+pub async fn delete(
+    Path(id): Path<i32>,
+    Extension(pg_pool): Extension<PgPool>,
+) -> impl IntoResponse {
+    Project::delete(id, pg_pool).await;
+
+    StatusCode::NO_CONTENT
 }
 
+// TODO: Implement update method
 pub async fn update() {
     unimplemented!()
 }
@@ -175,6 +188,41 @@ mod tests {
         let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
         let body_json = serde_json::from_slice::<Project>(&body).unwrap();
 
-        assert_eq!(body_json, project)
+        assert_eq!(body_json, project);
+
+        // let request = Request::builder()
+        //     .method(http::Method::GET)
+        //     .uri(format!("/projects/{}", project.id))
+        //     .body(Body::empty())
+        //     .unwrap();
+        //
+        // let response = app.router.oneshot(request).await.unwrap();
+        //
+        // let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+        // let body_json = serde_json::from_slice::<Project>(&body).unwrap();
+        //
+        // assert_eq!(body_json, project);
+    }
+
+    #[tokio::test]
+    async fn projects_delete() {
+        let app = App::new(Configuration::test()).await;
+
+        let project = Project {
+            id: 4,
+            project: "Project 1".to_string(),
+        };
+
+        let request = Request::builder()
+            .method(http::Method::DELETE)
+            .uri(format!("/projects/{}", project.id))
+            .body(Body::empty())
+            .unwrap();
+
+        let response = app.router.oneshot(request).await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::NO_CONTENT)
+
+        // Then make second request to confirm delete
     }
 }
