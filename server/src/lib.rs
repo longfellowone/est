@@ -1,50 +1,91 @@
-use actix_cors::Cors;
-use actix_web::dev::Server;
-use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
-use anyhow::Result;
+use crate::config::Configuration;
+use axum::http::StatusCode;
+use axum::{routing::get, AddExtensionLayer, Router};
+
 use std::net::TcpListener;
+use tower::ServiceBuilder;
+use tower_http::trace::TraceLayer;
 
-mod postgres;
+pub mod config;
+mod projects;
 
-pub fn run(listener: TcpListener) -> Result<Server> {
-    // let data = web::Data::new();
-
-    let server = HttpServer::new(move || {
-        App::new()
-            .wrap(Cors::permissive())
-            // .app_data(data.clone())
-            .configure(routes)
-    })
-    .listen(listener)?
-    .run();
-
-    Ok(server)
+pub struct App {
+    router: Router,
+    listener: TcpListener,
 }
 
-fn routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/v1")
-            .route("", web::get().to(health_check))
-        // .service(
-        //     web::scope("/syn")
-        //         .route("", web::get().to(syn::health_check))
-        //         .route("/punchin", web::post().to(syn::punchin))
-        //         .route("/punchout", web::post().to(syn::punchout))
-        //         .service(
-        //             web::scope("/employees")
-        //                 .route("", web::get().to(employees::list))
-        //                 .service(
-        //                     web::resource("/{employee}")
-        //                         .route(web::get().to(employees::get))
-        //                         .route(web::post().to(employees::update)),
-        //                 ),
-        //         ),
-        // ),
-    );
+impl App {
+    pub async fn new(config: Configuration) -> Self {
+        let pg_pool = config.postgres.initialize().await;
+
+        let middleware = ServiceBuilder::new()
+            .layer(TraceLayer::new_for_http())
+            .layer(AddExtensionLayer::new(pg_pool));
+
+        let routes = initialize_routes();
+
+        let router = Router::new().merge(routes).layer(middleware);
+
+        let listener = TcpListener::bind(&config.http.address()).unwrap();
+
+        App { router, listener }
+    }
+
+    pub async fn run(self) -> hyper::Result<()> {
+        tracing::debug!("listening on {:?}", self.listener.local_addr().unwrap());
+
+        axum::Server::from_tcp(self.listener)
+            .unwrap()
+            .serve(self.router.into_make_service())
+            .await
+    }
+
+    // Add address and port method
 }
 
-pub async fn health_check(_req: HttpRequest) -> impl Responder {
-    println!("health_check hit");
-
-    HttpResponse::Ok()
+fn initialize_routes() -> Router {
+    Router::new()
+        .route("/health_check", get(health_check))
+        .route("/projects", get(projects::list).post(projects::create))
+        .route(
+            "/projects/:id",
+            get(projects::get)
+                .post(projects::update)
+                .delete(projects::delete),
+        )
 }
+
+async fn health_check() -> StatusCode {
+    StatusCode::OK
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::body::Body;
+    use axum::http;
+    use axum::http::Request;
+    use tower::ServiceExt;
+
+    #[tokio::test]
+    async fn health_check() {
+        let app = App::new(Configuration::test()).await;
+
+        let request = Request::builder()
+            .method(http::Method::GET)
+            .uri("/health_check")
+            .body(Body::empty())
+            .unwrap();
+
+        let response = app.router.oneshot(request).await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
+
+        assert!(body.is_empty())
+    }
+}
+
+// zero2prod axum
+// https://github.com/mattiapenati/zero2prod/tree/main/src

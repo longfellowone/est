@@ -7,13 +7,10 @@ services:
         - .env
       ports:
         - '5432:5432'
-    search:
-      image: getmeili/meilisearch:latest
-      restart: always
-      env_file:
-        - .env
-      ports:
-        - '7700:7700'
-#    volumes:
-#      - ./postgres-data:/var/lib/postgresql/data
-#      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+#    search:
+#      image: getmeili/meilisearch:latest
+#      restart: always
+#      env_file:
+#        - .env
+#      ports:
+#        - '7700:7700'
