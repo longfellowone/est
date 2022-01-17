@@ -4,7 +4,7 @@ use sqlx::Executor;
 use uuid::Uuid;
 
 pub struct TestApp {
-    pub address: String,
+    pub addr: String,
 }
 
 impl TestApp {
@@ -37,7 +37,7 @@ impl TestApp {
         sqlx::migrate!("./migrations")
             .run(&mut pg_connection)
             .await
-            .unwrap();
+            .expect("failed to migrate database");
 
         // Run migrations to insert test data
         // sqlx::migrate!("./tests/migrations")
@@ -47,11 +47,11 @@ impl TestApp {
 
         let app = App::new(config).await;
 
-        let address = format!("http://{}", app.address());
+        let addr = format!("http://{}", app.addr());
 
         tokio::spawn(async move { app.run().await });
 
-        TestApp { address }
+        TestApp { addr }
     }
 }
 
