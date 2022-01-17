@@ -2,12 +2,13 @@ use crate::config::Configuration;
 use axum::http::StatusCode;
 use axum::{routing::get, AddExtensionLayer, Router};
 
+use axum::response::IntoResponse;
 use std::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
 pub mod config;
-mod projects;
+pub mod projects;
 
 pub struct App {
     router: Router,
@@ -16,7 +17,9 @@ pub struct App {
 
 impl App {
     pub async fn new(config: Configuration) -> Self {
-        let pg_pool = config.postgres.initialize().await;
+        let pg_pool = config.postgres.pool().await;
+
+        sqlx::migrate!("./migrations").run(&pg_pool).await.unwrap();
 
         let middleware = ServiceBuilder::new()
             .layer(TraceLayer::new_for_http())
@@ -40,7 +43,9 @@ impl App {
             .await
     }
 
-    // Add address and port method
+    pub fn address(&self) -> String {
+        format!("{}", self.listener.local_addr().unwrap())
+    }
 }
 
 fn initialize_routes() -> Router {
@@ -55,37 +60,6 @@ fn initialize_routes() -> Router {
         )
 }
 
-async fn health_check() -> StatusCode {
+async fn health_check() -> impl IntoResponse {
     StatusCode::OK
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use axum::body::Body;
-    use axum::http;
-    use axum::http::Request;
-    use tower::ServiceExt;
-
-    #[tokio::test]
-    async fn health_check() {
-        let app = App::new(Configuration::test()).await;
-
-        let request = Request::builder()
-            .method(http::Method::GET)
-            .uri("/health_check")
-            .body(Body::empty())
-            .unwrap();
-
-        let response = app.router.oneshot(request).await.unwrap();
-
-        assert_eq!(response.status(), StatusCode::OK);
-
-        let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
-
-        assert!(body.is_empty())
-    }
-}
-
-// zero2prod axum
-// https://github.com/mattiapenati/zero2prod/tree/main/src
