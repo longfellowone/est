@@ -1,29 +1,19 @@
+use crate::common::TestApp;
+use axum::http::StatusCode;
+
 mod common;
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use axum::body::Body;
-//     use axum::http;
-//     use axum::http::Request;
-//     use tower::ServiceExt;
-//
-//     #[tokio::test]
-//     async fn health_check() {
-//         let app = App::new(Configuration::test()).await;
-//
-//         let request = Request::builder()
-//             .method(http::Method::GET)
-//             .uri("/health_check")
-//             .body(Body::empty())
-//             .unwrap();
-//
-//         let response = app.router.oneshot(request).await.unwrap();
-//
-//         assert_eq!(response.status(), StatusCode::OK);
-//
-//         let body = hyper::body::to_bytes(response.into_body()).await.unwrap();
-//
-//         assert!(body.is_empty())
-//     }
-// }
+#[tokio::test]
+async fn health_check_returns_200_with_empty_body() {
+    let app = TestApp::new().await;
+    let client = reqwest::Client::new();
+
+    let response = client
+        .get(format!("{}/health_check", app.address))
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(response.content_length(), Some(0));
+}
