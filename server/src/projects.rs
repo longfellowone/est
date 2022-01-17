@@ -1,9 +1,47 @@
-use crate::StatusCode;
+use crate::error::{sqlx_error, AppError};
 use axum::extract::{Extension, Path};
-use axum::response::IntoResponse;
+use axum::http::StatusCode;
 use axum::Json;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+
+pub async fn list(Extension(pg_pool): Extension<PgPool>) -> Result<Json<Vec<Project>>, AppError> {
+    let projects = Project::fetch_all(pg_pool).await?;
+
+    Ok(projects.into())
+}
+
+pub async fn get(
+    Path(id): Path<i32>,
+    Extension(pg_pool): Extension<PgPool>,
+) -> Result<Json<Project>, AppError> {
+    let project = Project::fetch_one(id, pg_pool).await?;
+
+    Ok(project.into())
+}
+
+pub async fn create(
+    Json(project): Json<Project>,
+    Extension(pg_pool): Extension<PgPool>,
+) -> Result<(StatusCode, Json<Project>), AppError> {
+    let project = Project::create(project, pg_pool).await?;
+
+    Ok((StatusCode::CREATED, project.into()))
+}
+
+pub async fn delete(
+    Path(id): Path<i32>,
+    Extension(pg_pool): Extension<PgPool>,
+) -> Result<StatusCode, AppError> {
+    Project::delete(id, pg_pool).await?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+// TODO: Implement update method
+pub async fn update() {
+    unimplemented!()
+}
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Project {
@@ -12,7 +50,7 @@ pub struct Project {
 }
 
 impl Project {
-    async fn fetch_all(pg_pool: PgPool) -> Vec<Self> {
+    async fn fetch_all(pg_pool: PgPool) -> Result<Vec<Self>, AppError> {
         let projects = sqlx::query_as!(
             Project,
             r#"
@@ -22,12 +60,12 @@ impl Project {
         )
         .fetch_all(&pg_pool)
         .await
-        .unwrap();
+        .map_err(sqlx_error);
 
         projects
     }
 
-    async fn fetch_one(id: i32, pg_pool: PgPool) -> Self {
+    async fn fetch_one(id: i32, pg_pool: PgPool) -> Result<Self, AppError> {
         let project = sqlx::query_as!(
             Project,
             r#"
@@ -39,12 +77,12 @@ impl Project {
         )
         .fetch_one(&pg_pool)
         .await
-        .unwrap();
+        .map_err(sqlx_error);
 
         project
     }
 
-    async fn create(new_project: Project, pg_pool: PgPool) -> Self {
+    async fn create(new_project: Project, pg_pool: PgPool) -> Result<Self, AppError> {
         let project = sqlx::query_as!(
             Project,
             r#"
@@ -57,50 +95,24 @@ impl Project {
         )
         .fetch_one(&pg_pool)
         .await
-        .unwrap();
+        .map_err(sqlx_error);
 
         project
     }
 
-    async fn delete(id: i32, pg_pool: PgPool) {
-        sqlx::query!("DELETE FROM project WHERE id = $1", id)
+    async fn delete(id: i32, pg_pool: PgPool) -> Result<(), AppError> {
+        let result = sqlx::query!("DELETE FROM project WHERE id = $1", id)
             .execute(&pg_pool)
             .await
-            .unwrap();
+            .map_err(sqlx_error);
+
+        // TODO: Improve this?
+        if let Ok(query) = result {
+            if query.rows_affected() == 0 {
+                return Err(AppError::BadRequest);
+            }
+        }
+
+        Ok(())
     }
-}
-
-pub async fn list(Extension(pg_pool): Extension<PgPool>) -> impl IntoResponse {
-    let projects = Project::fetch_all(pg_pool).await;
-
-    (StatusCode::OK, Json(projects))
-}
-
-pub async fn get(Path(id): Path<i32>, Extension(pg_pool): Extension<PgPool>) -> impl IntoResponse {
-    let project = Project::fetch_one(id, pg_pool).await;
-
-    (StatusCode::OK, Json(project))
-}
-
-pub async fn create(
-    Json(project): Json<Project>,
-    Extension(pg_pool): Extension<PgPool>,
-) -> impl IntoResponse {
-    let project = Project::create(project, pg_pool).await;
-
-    (StatusCode::CREATED, Json(project))
-}
-
-pub async fn delete(
-    Path(id): Path<i32>,
-    Extension(pg_pool): Extension<PgPool>,
-) -> impl IntoResponse {
-    Project::delete(id, pg_pool).await;
-
-    StatusCode::NO_CONTENT
-}
-
-// TODO: Implement update method
-pub async fn update() {
-    unimplemented!()
 }

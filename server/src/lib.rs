@@ -8,6 +8,7 @@ use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
 pub mod config;
+mod error;
 pub mod projects;
 
 pub struct App {
@@ -19,7 +20,10 @@ impl App {
     pub async fn new(config: Configuration) -> Self {
         let pg_pool = config.postgres.pool().await;
 
-        sqlx::migrate!("./migrations").run(&pg_pool).await.unwrap();
+        sqlx::migrate!("./migrations")
+            .run(&pg_pool)
+            .await
+            .expect("failed to migrate database");
 
         let middleware = ServiceBuilder::new()
             .layer(TraceLayer::new_for_http())
@@ -29,22 +33,28 @@ impl App {
 
         let router = Router::new().merge(routes).layer(middleware);
 
-        let listener = TcpListener::bind(&config.http.address()).unwrap();
+        let listener =
+            TcpListener::bind(&config.http.address()).expect("failed to bind TCP listener");
 
         App { router, listener }
     }
 
     pub async fn run(self) -> hyper::Result<()> {
-        tracing::debug!("listening on {:?}", self.listener.local_addr().unwrap());
+        tracing::debug!("listening on {:?}", self.addr());
 
         axum::Server::from_tcp(self.listener)
-            .unwrap()
+            .expect("failed to start server")
             .serve(self.router.into_make_service())
             .await
     }
 
-    pub fn address(&self) -> String {
-        format!("{}", self.listener.local_addr().unwrap())
+    pub fn addr(&self) -> String {
+        format!(
+            "{}",
+            self.listener
+                .local_addr()
+                .expect("failed to get local_addr from listener")
+        )
     }
 }
 

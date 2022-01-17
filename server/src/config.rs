@@ -9,7 +9,7 @@ pub struct Configuration {
 
 impl Configuration {
     pub fn test() -> Self {
-        Configuration {
+        Self {
             http: Http {
                 host: "127.0.0.1".to_string(),
                 port: 0,
@@ -56,7 +56,7 @@ impl Postgres {
     pub async fn connection(&self) -> PgConnection {
         PgConnection::connect_with(&self.connect_options())
             .await
-            .unwrap()
+            .expect("failed to connect to database")
     }
 
     fn connect_options(&self) -> PgConnectOptions {
