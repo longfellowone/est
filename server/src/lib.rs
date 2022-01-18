@@ -139,17 +139,33 @@ mod tests {
 
         let schema = initialize_schema(&config).await;
 
-        #[derive(Debug, Deserialize)]
-        struct Object {
-            projects: Vec<Project>,
-        }
+        // #[derive(Debug, Deserialize)]
+        // struct Object {
+        //     projects: Vec<Project>,
+        // }
 
         let response = schema.execute("query { projects { id, project } }").await;
         let json_value = response.data.into_json().unwrap();
-        let object = serde_json::from_value::<Object>(json_value).unwrap();
+        // let object = serde_json::from_value::<Object>(json_value).unwrap();
 
-        // assert_eq!(json_value, serde::json!({}));
-
-        println!("{:?}", object.projects);
+        assert_eq!(
+            json_value,
+            serde_json::json!({
+                "projects": [
+                    {
+                        "id" : 1,
+                        "project" : "Project 1"
+                    },
+                    {
+                        "id" : 2,
+                        "project" : "Project 2"
+                    },
+                    {
+                        "id" : 3,
+                        "project" : "Project 3"
+                    }
+                ]
+            })
+        );
     }
 }
