@@ -7,17 +7,20 @@ pub struct TestApp {
     pub addr: String,
 }
 
+// schema is private
+// add .execute() method to TestApp
+
 impl TestApp {
     pub async fn new() -> Self {
         let test_database = format!("test_{}", Uuid::new_v4().to_string().replace('-', ""));
 
         let config = Configuration {
             http: Http {
-                host: "127.0.0.1".to_string(),
+                host: "localhost".to_string(),
                 port: 0,
             },
             postgres: Postgres {
-                host: "127.0.0.1".to_string(),
+                host: "localhost".to_string(),
                 port: 5432,
                 user: "postgres".to_string(),
                 password: "postgres".to_string(),

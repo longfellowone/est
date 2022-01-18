@@ -7,12 +7,14 @@ use async_graphql::{
 };
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::extract::Extension;
-use axum::http::StatusCode;
+use axum::http::{Method, StatusCode};
 use axum::response::{self, IntoResponse};
 use axum::{routing::get, AddExtensionLayer, Router};
 use sqlx::PgPool;
 use std::net::TcpListener;
+use tokio::time::{sleep, Duration};
 use tower::ServiceBuilder;
+use tower_http::cors::{any, CorsLayer};
 use tower_http::trace::TraceLayer;
 
 pub mod config;
@@ -24,12 +26,22 @@ pub struct App {
     listener: TcpListener,
 }
 
+// Lookahead example
+// https://cs.github.com/cthit/hubbit2/blob/40cd6541c9b9daa6c65198fe6a763b5d794e8dc0/backend/src/schema/stats.rs#L420
+
+// TODO: Dump TCListener
+
 impl App {
     pub async fn new(config: Configuration) -> Self {
         let schema = initialize_schema(&config).await;
 
+        let cors = CorsLayer::new()
+            .allow_methods(vec![Method::GET, Method::POST])
+            .allow_origin(any());
+
         let middleware = ServiceBuilder::new()
             .layer(TraceLayer::new_for_http())
+            .layer(cors)
             // .layer(AddExtensionLayer::new(pg_pool))
             .layer(AddExtensionLayer::new(schema));
 
@@ -64,7 +76,7 @@ impl App {
 
 fn initialize_routes() -> Router {
     Router::new()
-        .route("/", get(graphql_playground).post(graphql_handler))
+        .route("/", get(graphql_playground).post(graphql_handler)) //
         .route("/health_check", get(health_check))
         .route("/projects", get(projects::list).post(projects::create))
         .route(
@@ -106,6 +118,8 @@ impl QueryRoot {
         let pg_pool = ctx.data_unchecked::<PgPool>();
         let projects = Project::fetch_all(pg_pool).await.unwrap();
 
+        sleep(Duration::from_millis(500)).await;
+
         Ok(projects)
     }
 }
@@ -118,7 +132,7 @@ async fn health_check() -> impl IntoResponse {
 mod tests {
     use crate::config::{Http, Postgres};
     use crate::{initialize_schema, Configuration, Project};
-    use serde::Deserialize;
+    use serde::{Deserialize, Deserializer};
 
     #[tokio::test]
     async fn test_projects_query() {
@@ -144,7 +158,7 @@ mod tests {
         //     projects: Vec<Project>,
         // }
 
-        let response = schema.execute("query { projects { id, project } }").await;
+        let response = schema.execute("query { projects { id project } }").await;
         let json_value = response.data.into_json().unwrap();
         // let object = serde_json::from_value::<Object>(json_value).unwrap();
 
