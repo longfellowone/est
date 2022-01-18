@@ -22,7 +22,8 @@ tracing-subscriber = { version = "0.3.4", features = ["env-filter"] }
 #env_logger = "0.9.0"
 #log = "0.4.14"
 #TEMP
-
+async-graphql = "3.0.21"
+async-graphql-axum = "3.0.21"
 
 [dev-dependencies]
 reqwest = { version = "0.11.9", features = ["json", "rustls-tls"] }

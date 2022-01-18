@@ -1,4 +1,5 @@
 use crate::error::{sqlx_error, AppError};
+use async_graphql::SimpleObject;
 use axum::extract::{Extension, Path};
 use axum::http::StatusCode;
 use axum::Json;
@@ -6,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
 pub async fn list(Extension(pg_pool): Extension<PgPool>) -> Result<Json<Vec<Project>>, AppError> {
-    let projects = Project::fetch_all(pg_pool).await?;
+    let projects = Project::fetch_all(&pg_pool).await?;
 
     Ok(projects.into())
 }
@@ -43,14 +44,14 @@ pub async fn update() {
     unimplemented!()
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, SimpleObject)]
 pub struct Project {
     pub id: i32,
     pub project: String,
 }
 
 impl Project {
-    async fn fetch_all(pg_pool: PgPool) -> Result<Vec<Self>, AppError> {
+    pub async fn fetch_all(pg_pool: &PgPool) -> Result<Vec<Self>, AppError> {
         let projects = sqlx::query_as!(
             Project,
             r#"
@@ -58,7 +59,7 @@ impl Project {
             From project
             "#
         )
-        .fetch_all(&pg_pool)
+        .fetch_all(pg_pool)
         .await
         .map_err(sqlx_error);
 
