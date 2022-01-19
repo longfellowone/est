@@ -1,5 +1,5 @@
 use crate::error::{sqlx_error, AppError};
-use async_graphql::SimpleObject;
+use async_graphql::{SimpleObject, ID};
 use axum::extract::{Extension, Path};
 use axum::http::StatusCode;
 use axum::Json;
@@ -52,57 +52,50 @@ pub struct Project {
 
 impl Project {
     pub async fn fetch_all(pg_pool: &PgPool) -> Result<Vec<Self>, AppError> {
-        let projects = sqlx::query_as!(
-            Project,
-            r#"
+        let query = r#"
             SELECT id, project
             From project
-            "#
-        )
-        .fetch_all(pg_pool)
-        .await
-        .map_err(sqlx_error);
+            "#;
 
-        projects
+        sqlx::query_as!(Project, query)
+            .fetch_all(pg_pool)
+            .await
+            .map_err(sqlx_error)
     }
 
     async fn fetch_one(id: i32, pg_pool: PgPool) -> Result<Self, AppError> {
-        let project = sqlx::query_as!(
-            Project,
-            r#"
+        let query = r#"
             SELECT id, project
             FROM project
             WHERE id = $1
-            "#,
-            id
-        )
-        .fetch_one(&pg_pool)
-        .await
-        .map_err(sqlx_error);
+            "#;
 
-        project
+        sqlx::query_as!(Project, query, id)
+            .fetch_one(&pg_pool)
+            .await
+            .map_err(sqlx_error)
     }
 
     async fn create(new_project: Project, pg_pool: PgPool) -> Result<Self, AppError> {
-        let project = sqlx::query_as!(
-            Project,
-            r#"
+        let query = r#"
             INSERT INTO project (id, project)
             VALUES ($1, $2)
             RETURNING *
-            "#,
-            new_project.id,
-            new_project.project
-        )
-        .fetch_one(&pg_pool)
-        .await
-        .map_err(sqlx_error);
+            "#;
 
-        project
+        sqlx::query_as!(Project, query, new_project.id, new_project.project)
+            .fetch_one(&pg_pool)
+            .await
+            .map_err(sqlx_error)
     }
 
     async fn delete(id: i32, pg_pool: PgPool) -> Result<(), AppError> {
-        let result = sqlx::query!("DELETE FROM project WHERE id = $1", id)
+        let query = r#"
+            DELETE FROM project 
+            WHERE id = $1
+            "#;
+
+        let result = sqlx::query!(query, id)
             .execute(&pg_pool)
             .await
             .map_err(sqlx_error);

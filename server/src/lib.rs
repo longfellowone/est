@@ -12,7 +12,6 @@ use axum::response::{self, IntoResponse};
 use axum::{routing::get, AddExtensionLayer, Router};
 use sqlx::PgPool;
 use std::net::TcpListener;
-use tokio::time::{sleep, Duration};
 use tower::ServiceBuilder;
 use tower_http::cors::{any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -118,7 +117,7 @@ impl QueryRoot {
         let pg_pool = ctx.data_unchecked::<PgPool>();
         let projects = Project::fetch_all(pg_pool).await.unwrap();
 
-        sleep(Duration::from_millis(500)).await;
+        // sleep(Duration::from_millis(500)).await;
 
         Ok(projects)
     }
@@ -131,8 +130,7 @@ async fn health_check() -> impl IntoResponse {
 #[cfg(test)]
 mod tests {
     use crate::config::{Http, Postgres};
-    use crate::{initialize_schema, Configuration, Project};
-    use serde::{Deserialize, Deserializer};
+    use crate::{initialize_schema, Configuration};
 
     #[tokio::test]
     async fn test_projects_query() {
@@ -153,14 +151,8 @@ mod tests {
 
         let schema = initialize_schema(&config).await;
 
-        // #[derive(Debug, Deserialize)]
-        // struct Object {
-        //     projects: Vec<Project>,
-        // }
-
         let response = schema.execute("query { projects { id project } }").await;
         let json_value = response.data.into_json().unwrap();
-        // let object = serde_json::from_value::<Object>(json_value).unwrap();
 
         assert_eq!(
             json_value,
