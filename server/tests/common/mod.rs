@@ -8,7 +8,7 @@ pub struct TestApp {
 }
 
 // schema is private
-// add .execute() method to TestApp
+// TODO: add .execute() method to TestApp
 
 impl TestApp {
     pub async fn new() -> Self {
