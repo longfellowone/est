@@ -36,12 +36,6 @@ impl TestApp {
             .await
             .ok();
 
-        // Works, but how does this know what table to run migrations on?
-        sqlx::migrate!("./migrations")
-            .run(&mut pg_connection)
-            .await
-            .expect("failed to migrate database");
-
         // Run migrations to insert test data
         // sqlx::migrate!("./tests/migrations")
         //     .run(&mut pg_connection)

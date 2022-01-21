@@ -22,7 +22,14 @@ pub struct App {
 
 impl App {
     pub async fn new(config: Configuration) -> Self {
-        let schema = graphql::schema(&config).await;
+        let pg_pool = config.postgres.pool().await;
+
+        sqlx::migrate!("./migrations")
+            .run(&pg_pool)
+            .await
+            .expect("failed to migrate database");
+
+        let schema = graphql::schema(pg_pool).await;
 
         let cors = CorsLayer::new()
             .allow_methods(vec![Method::GET, Method::POST])
@@ -44,11 +51,20 @@ impl App {
     }
 
     pub async fn run(self) -> hyper::Result<()> {
-        tracing::debug!("listening on {:?}", self.listener.local_addr().unwrap());
+        tracing::debug!("listening on {:?}", self.addr());
 
         axum::Server::from_tcp(self.listener)
             .expect("failed to start server")
             .serve(self.router.into_make_service())
             .await
+    }
+
+    pub fn addr(&self) -> String {
+        format!(
+            "{}",
+            self.listener
+                .local_addr()
+                .expect("failed to get local_addr from listener")
+        )
     }
 }

@@ -1,23 +1,18 @@
-use crate::{Configuration, IntoResponse};
+use crate::IntoResponse;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::extract::Extension;
 use axum::response;
 use query_root::QueryRoot;
+use sqlx::PgPool;
 
+mod projects;
 mod query_root;
 
-type GraphqlSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
+pub type GraphqlSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
 
-pub async fn schema(config: &Configuration) -> GraphqlSchema {
-    let pg_pool = config.postgres.pool().await;
-
-    sqlx::migrate!("./migrations")
-        .run(&pg_pool)
-        .await
-        .expect("failed to migrate database");
-
+pub async fn schema(pg_pool: PgPool) -> GraphqlSchema {
     Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
         .data(pg_pool)
         .finish()

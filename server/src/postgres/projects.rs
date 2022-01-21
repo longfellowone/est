@@ -1,11 +1,11 @@
 use crate::error::{sqlx_error, AppError};
-use async_graphql::SimpleObject;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use uuid::Uuid;
 
-#[derive(Debug, PartialEq, Serialize, Deserialize, SimpleObject)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Project {
-    pub id: i32,
+    pub id: Uuid,
     pub project: String,
 }
 
@@ -23,7 +23,7 @@ impl Project {
         .map_err(sqlx_error)
     }
 
-    async fn fetch_one(id: i32, pg_pool: PgPool) -> Result<Self, AppError> {
+    async fn fetch_one(id: Uuid, pg_pool: PgPool) -> Result<Self, AppError> {
         sqlx::query_as!(
             Project,
             r#"
@@ -54,7 +54,7 @@ impl Project {
         .map_err(sqlx_error)
     }
 
-    async fn delete(id: i32, pg_pool: PgPool) -> Result<(), AppError> {
+    async fn delete(id: Uuid, pg_pool: PgPool) -> Result<(), AppError> {
         let result = sqlx::query!(
             r#"
             DELETE FROM project 
@@ -76,41 +76,3 @@ impl Project {
         Ok(())
     }
 }
-
-// pub async fn list(Extension(pg_pool): Extension<PgPool>) -> Result<Json<Vec<Project>>, AppError> {
-//     let projects = Project::fetch_all(&pg_pool).await?;
-//
-//     Ok(projects.into())
-// }
-//
-// pub async fn get(
-//     Path(id): Path<i32>,
-//     Extension(pg_pool): Extension<PgPool>,
-// ) -> Result<Json<Project>, AppError> {
-//     let project = Project::fetch_one(id, pg_pool).await?;
-//
-//     Ok(project.into())
-// }
-//
-// pub async fn create(
-//     Json(project): Json<Project>,
-//     Extension(pg_pool): Extension<PgPool>,
-// ) -> Result<(StatusCode, Json<Project>), AppError> {
-//     let project = Project::create(project, pg_pool).await?;
-//
-//     Ok((StatusCode::CREATED, project.into()))
-// }
-//
-// pub async fn delete(
-//     Path(id): Path<i32>,
-//     Extension(pg_pool): Extension<PgPool>,
-// ) -> Result<StatusCode, AppError> {
-//     Project::delete(id, pg_pool).await?;
-//
-//     Ok(StatusCode::NO_CONTENT)
-// }
-//
-// // TODO: Implement update method
-// pub async fn update() {
-//     unimplemented!()
-// }

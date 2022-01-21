@@ -1,38 +1,44 @@
 mod common;
 
-// use crate::common::TestApp;
-// use axum::http::StatusCode;
-// use server::postgres::projects::Project;
-//
-// mod common;
-//
-// #[tokio::test]
-// async fn projects_list_returns_vec_of_projects() {
-//     let app = TestApp::new().await;
-//     let client = reqwest::Client::new();
-//
-//     let response = client
-//         .get(format!("{}/projects", app.addr))
-//         .send()
-//         .await
-//         .expect("get request failed to /projects");
-//
-//     assert_eq!(response.status(), StatusCode::OK);
-//
-//     let response_json = response
-//         .json::<Vec<Project>>()
-//         .await
-//         .expect("failed to deserialize Vec<Project>");
-//
-//     let project = Project {
-//         id: 1,
-//         project: "Project 1".to_string(),
-//     };
-//
-//     assert_eq!(response_json.len(), 3);
-//     assert_eq!(response_json[0], project)
-// }
-//
+#[cfg(test)]
+mod tests {
+    use crate::common::TestApp;
+    use reqwest_graphql::Client;
+    use serde::Deserialize;
+    use server::postgres::projects::Project;
+    use uuid::Uuid;
+
+    #[derive(Deserialize, Debug)]
+    struct Data {
+        projects: Vec<Project>,
+    }
+
+    #[tokio::test]
+    async fn test_projects_query() {
+        let app = TestApp::new().await;
+        let client = Client::new(&app.addr);
+
+        let query = r#"
+            query {
+                projects {
+                    id
+                    project
+                }
+            }
+        "#;
+
+        let projects = client.query::<Data>(query).await.unwrap().projects;
+
+        let project = Project {
+            id: Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap(),
+            project: "Project 1".to_string(),
+        };
+
+        assert_eq!(projects.len(), 3);
+        assert_eq!(projects[0], project)
+    }
+}
+
 // #[tokio::test]
 // async fn projects_get_returns_a_project() {
 //     let app = TestApp::new().await;
