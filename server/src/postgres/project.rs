@@ -23,7 +23,7 @@ impl Project {
         .map_err(sqlx_error)
     }
 
-    async fn fetch_one(id: Uuid, pg_pool: PgPool) -> Result<Self, AppError> {
+    pub async fn fetch_one(id: Uuid, pg_pool: &PgPool) -> Result<Self, AppError> {
         sqlx::query_as!(
             Project,
             r#"
@@ -33,12 +33,12 @@ impl Project {
             "#,
             id
         )
-        .fetch_one(&pg_pool)
+        .fetch_one(pg_pool)
         .await
         .map_err(sqlx_error)
     }
 
-    async fn create(new_project: Project, pg_pool: PgPool) -> Result<Self, AppError> {
+    pub async fn create(new_project: Project, pg_pool: &PgPool) -> Result<Self, AppError> {
         sqlx::query_as!(
             Project,
             r#"
@@ -49,12 +49,12 @@ impl Project {
             new_project.id,
             new_project.project
         )
-        .fetch_one(&pg_pool)
+        .fetch_one(pg_pool)
         .await
         .map_err(sqlx_error)
     }
 
-    async fn delete(id: Uuid, pg_pool: PgPool) -> Result<(), AppError> {
+    pub async fn delete(id: Uuid, pg_pool: &PgPool) -> Result<(), AppError> {
         let result = sqlx::query!(
             r#"
             DELETE FROM project 
@@ -62,7 +62,7 @@ impl Project {
             "#,
             id
         )
-        .execute(&pg_pool)
+        .execute(pg_pool)
         .await
         .map_err(sqlx_error);
 

@@ -4,14 +4,7 @@ mod common;
 mod tests {
     use crate::common::TestApp;
     use reqwest_graphql::Client;
-    use serde::Deserialize;
-    use server::postgres::projects::Project;
-    use uuid::Uuid;
-
-    #[derive(Deserialize, Debug)]
-    struct Data {
-        projects: Vec<Project>,
-    }
+    use serde_json::Value;
 
     #[tokio::test]
     async fn test_projects_query() {
@@ -27,15 +20,52 @@ mod tests {
             }
         "#;
 
-        let projects = client.query::<Data>(query).await.unwrap().projects;
+        let left = client.query::<Value>(query).await.unwrap();
 
-        let project = Project {
-            id: Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap(),
-            project: "Project 1".to_string(),
-        };
+        let right = serde_json::json!({
+           "projects": [
+                {
+                    "id":"00000000-0000-0000-0000-000000000001",
+                    "project":"Project 1"
+                },
+                {
+                    "id":"00000000-0000-0000-0000-000000000002",
+                    "project":"Project 2"
+                },
+                {
+                    "id":"00000000-0000-0000-0000-000000000003",
+                    "project":"Project 3"
+                }
+            ]
+        });
 
-        assert_eq!(projects.len(), 3);
-        assert_eq!(projects[0], project)
+        assert_eq!(left, right);
+    }
+
+    #[tokio::test]
+    async fn test_project_by_id_query() {
+        let app = TestApp::new().await;
+        let client = Client::new(&app.addr);
+
+        let query = r#"
+            query {
+                project(id: "00000000-0000-0000-0000-000000000001") {
+                    id
+                    project
+                }
+            }
+        "#;
+
+        let left = client.query::<Value>(query).await.unwrap();
+
+        let right = serde_json::json!({
+            "project": {
+                "id":"00000000-0000-0000-0000-000000000001",
+                "project":"Project 1"
+            }
+        });
+
+        assert_eq!(left, right)
     }
 }
 

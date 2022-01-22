@@ -1,19 +1,22 @@
+use crate::graphql::mutation_root::MutationRoot;
 use crate::IntoResponse;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::extract::Extension;
 use axum::response;
 use query_root::QueryRoot;
 use sqlx::PgPool;
 
-mod projects;
+mod estimate;
+mod mutation_root;
+mod project;
 mod query_root;
 
-pub type GraphqlSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
+pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub async fn schema(pg_pool: PgPool) -> GraphqlSchema {
-    Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+    Schema::build(QueryRoot, MutationRoot, EmptySubscription)
         .data(pg_pool)
         .finish()
 }

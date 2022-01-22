@@ -49,9 +49,9 @@ checksum = "71938f30533e4d95a6d17aa530939da3842c2ab6f4f84b9dae68447e4129f74a"
 
 [[package]]
 name = "async-graphql"
-version = "3.0.22"
+version = "3.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf8133c82d84be4006797ae96b1e938564fa5f27a07f8ef852733d535d75e40f"
+checksum = "444ff97968a56c1888c66094281124ccd06445a8893131d6d3b21fb83f60cd75"
 dependencies = [
  "async-graphql-derive",
  "async-graphql-parser",
@@ -79,9 +79,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-axum"
-version = "3.0.22"
+version = "3.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7817584a862bbc2366921f8bb277c801717d5ba1c00bdf23c814ccf1568a839"
+checksum = "5371d22a0e6a153cf441a67fa3ccf3ff8f166abdfde055d27a1c8ec197eb9aa2"
 dependencies = [
  "async-graphql",
  "async-trait",
@@ -97,9 +97,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-derive"
-version = "3.0.22"
+version = "3.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7548a7cd7a946d85b6b2b9814b11f71bdda424143c755209a4f378849d75f45"
+checksum = "991749e98483b6dfb7b0d16f5909cd4b47005fef7d354a53904f5064c4ab666b"
 dependencies = [
  "Inflector",
  "async-graphql-parser",
@@ -113,9 +113,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-parser"
-version = "3.0.22"
+version = "3.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa38c108e7b562fa9ccaa3d016827f61976375d79fa1e39ade9be005c0a8e2d4"
+checksum = "230a5a6bad844b0cb9a04995b5fb8f613323b34192784852da9dcb07f5ccdd77"
 dependencies = [
  "async-graphql-value",
  "pest",
@@ -126,9 +126,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-value"
-version = "3.0.22"
+version = "3.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34394798dfadb4cf2840ce2477a93c9e241b06c5703a0b31388b3a8837f0071e"
+checksum = "836da418cd2a465065ce3973301255c983e6a4d561c747c8f7210481ddb1dad9"
 dependencies = [
  "bytes",
  "indexmap",
@@ -1290,9 +1290,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.14"
+version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47aa80447ce4daf1717500037052af176af5d38cc3e571d9ec1c7353fc10c87d"
+checksum = "864d3e96a899863136fc6e99f3d7cae289dafe43bf2c5ac19b70df7210c0a145"
 dependencies = [
  "proc-macro2",
 ]
@@ -1522,18 +1522,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.133"
+version = "1.0.134"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97565067517b60e2d1ea8b268e59ce036de907ac523ad83a0475da04e818989a"
+checksum = "96b3c34c1690edf8174f5b289a336ab03f568a4460d8c6df75f2f3a692b3bc6a"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.133"
+version = "1.0.134"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed201699328568d8d08208fdd080e3ff594e6c422e438b6705905da01005d537"
+checksum = "784ed1fbfa13fe191077537b0d70ec8ad1e903cfe04831da608aa36457cb653d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1656,9 +1656,9 @@ checksum = "f2dd574626839106c320a323308629dcb1acfc96e32a8cba364ddc61ac23ee83"
 
 [[package]]
 name = "socket2"
-version = "0.4.2"
+version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dc90fe6c7be1a323296982db1836d1ea9e47b6839496dde9a541bc496df3516"
+checksum = "0f82496b90c36d70af5fcd482edaa2e0bd16fade569de1330405fecbbdac736b"
 dependencies = [
  "libc",
  "winapi",
@@ -2015,9 +2015,9 @@ dependencies = [
 
 [[package]]
 name = "tower-http"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39ee603d6e665ecc7e0f8d479eedb4626bd4726f0ee6119cee5b3a6bf184cac0"
+checksum = "03650267ad175b51c47d02ed9547fc7d4ba2c7e5cb76df0bed67edd1825ae297"
 dependencies = [
  "bitflags",
  "bytes",
