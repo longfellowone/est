@@ -1,5 +1,17 @@
 use crate::postgres::Estimate;
-use async_graphql::Object;
+use async_graphql::{InputObject, Object, SimpleObject};
+
+#[derive(Debug, InputObject)]
+pub struct CreateEstimateInput {
+    pub id: String,
+    pub project_id: String,
+    pub description: String,
+}
+
+#[derive(SimpleObject)]
+pub struct EstimatePayload {
+    pub estimate: Option<Estimate>,
+}
 
 #[Object]
 impl Estimate {
@@ -11,7 +23,10 @@ impl Estimate {
         self.description.to_string()
     }
 
+    // TODO: Calculate this every time, remove field from struct?
     async fn cost(&self) -> i32 {
-        self.price
+        self.cost
     }
+
+    // TODO: Add project to estimate?
 }

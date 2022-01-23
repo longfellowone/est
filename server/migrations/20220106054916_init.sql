@@ -6,8 +6,20 @@ CREATE TABLE project
 
 INSERT INTO project (id, project)
 VALUES ('00000000-0000-0000-0000-000000000001', 'Project 1'),
-       ('00000000-0000-0000-0000-000000000002', 'Project 2'),
-       ('00000000-0000-0000-0000-000000000003','Project 3')
+       ('00000000-0000-0000-0000-000000000002', 'Project 2');
+
+CREATE TABLE estimate
+(
+    id          uuid primary key,
+    project_id  uuid REFERENCES project (id) ON UPDATE CASCADE,
+    description text NOT NULL,
+    cost        int  NOT NULL
+);
+
+INSERT INTO estimate (id, project_id, description, cost)
+VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Estimate 1', 100),
+       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Estimate 2', 200),
+       ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002', 'Estimate 3', 300);
 
 -- https://dba.stackexchange.com/questions/146906/insert-into-three-tables-with-many-to-many-from-one-table?
 -- http://sqlfiddle.com/#!17/390a7/77

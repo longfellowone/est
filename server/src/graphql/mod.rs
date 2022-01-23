@@ -8,7 +8,7 @@ use axum::response;
 use query_root::QueryRoot;
 use sqlx::PgPool;
 
-mod estimate;
+pub(crate) mod estimate;
 mod mutation_root;
 mod project;
 mod query_root;

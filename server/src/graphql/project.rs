@@ -1,5 +1,23 @@
+use crate::error::AppError;
 use crate::postgres::{Estimate, Project};
-use async_graphql::Object;
+use async_graphql::{Context, InputObject, Object, Result, SimpleObject};
+use sqlx::PgPool;
+
+#[derive(InputObject)]
+pub struct CreateProjectInput {
+    pub id: String,
+    pub project: String,
+}
+
+#[derive(InputObject)]
+pub struct DeleteProjectInput {
+    pub id: String,
+}
+
+#[derive(SimpleObject)]
+pub struct ProjectPayload {
+    pub project: Option<Project>,
+}
 
 #[Object]
 impl Project {
@@ -11,20 +29,12 @@ impl Project {
         self.project.to_string()
     }
 
-    async fn estimates(&self) -> Vec<Estimate> {
-        println!("{:?}", self.id);
+    async fn estimates(&self, ctx: &Context<'_>) -> Result<Vec<Estimate>, AppError> {
+        let pg_pool = ctx.data_unchecked::<PgPool>();
 
-        let e1 = Estimate {
-            id: Default::default(),
-            description: "".to_string(),
-            price: 100,
-        };
-        let e2 = Estimate {
-            id: Default::default(),
-            description: "".to_string(),
-            price: 200,
-        };
+        // TODO: Create a loader for estimates
+        let estimate = Estimate::fetch_all(self.id, pg_pool).await;
 
-        vec![e1, e2]
+        estimate
     }
 }
