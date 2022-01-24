@@ -1,4 +1,3 @@
-use crate::error::AppError;
 use crate::postgres::{Estimate, Project};
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
 use sqlx::PgPool;
@@ -13,9 +12,9 @@ impl ProjectQueries {
         let pg_pool = ctx.data_unchecked::<PgPool>();
         let id = Uuid::parse_str(&id).unwrap();
 
-        let payload = Project::fetch_one(id, pg_pool).await?;
+        let project = Project::fetch_one(id, pg_pool).await?;
 
-        Ok(payload)
+        Ok(project)
     }
 
     async fn projects(&self, ctx: &Context<'_>) -> Result<Vec<Project>> {
@@ -36,11 +35,15 @@ impl Project {
         self.project.to_string()
     }
 
-    async fn estimates(&self, ctx: &Context<'_>) -> Result<Vec<Estimate>, AppError> {
+    async fn estimates(&self, ctx: &Context<'_>) -> Option<Vec<Estimate>> {
         let pg_pool = ctx.data_unchecked::<PgPool>();
 
         // TODO: Create a loader for estimates
-        Estimate::fetch_all(self.id, pg_pool).await
+        // TODO: !!! Option should be on Estimate not Vec
+        match Estimate::fetch_all(self.id, pg_pool).await {
+            Ok(estimate) => Some(estimate),
+            Err(_) => None,
+        }
     }
 }
 

@@ -13,6 +13,8 @@ impl EstimateQueries {
         let pg_pool = ctx.data_unchecked::<PgPool>();
         let id = Uuid::parse_str(&id).unwrap();
 
+        println!("{:?}", id);
+
         let estimate = Estimate::fetch_one(id, pg_pool).await?;
 
         Ok(estimate)
@@ -34,11 +36,13 @@ impl Estimate {
         self.cost
     }
 
-    async fn project(&self, ctx: &Context<'_>) -> Result<Project, AppError> {
+    async fn project(&self, ctx: &Context<'_>) -> Option<Project> {
         let pg_pool = ctx.data_unchecked::<PgPool>();
 
-        // TODO: Maybe needs loader?
-        Project::fetch_one(self.id, pg_pool).await
+        match Project::fetch_one(self.id, pg_pool).await {
+            Ok(estimate) => Some(estimate),
+            Err(_) => None,
+        }
     }
 }
 
