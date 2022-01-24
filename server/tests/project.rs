@@ -2,9 +2,12 @@ mod common;
 
 #[cfg(test)]
 mod tests {
-    use crate::common::TestApp;
+    use crate::common::{TestApp, Vars};
     use reqwest_graphql::Client;
     use serde_json::Value;
+    use server::error::AppError;
+    use server::postgres::Project;
+    use uuid::Uuid;
 
     #[tokio::test]
     async fn test_projects_query() {
@@ -73,7 +76,6 @@ mod tests {
             mutation {
                 createProject(
                     input: {
-                        id: "00000000-0000-0000-0000-000000000003"
                         project: "Project 3"
                     }
                 ) {
@@ -87,10 +89,14 @@ mod tests {
 
         let left = client.query::<Value>(query).await.unwrap();
 
+        let id = left["createProject"]["project"]["id"].as_str().unwrap();
+
+        assert!(Uuid::parse_str(id).is_ok());
+
         let right = serde_json::json!({
             "createProject": {
                 "project": {
-                    "id": "00000000-0000-0000-0000-000000000003",
+                    "id": id,
                     "project": "Project 3",
                 }
             }
@@ -99,19 +105,22 @@ mod tests {
         assert_eq!(left, right);
 
         let query = r#"
-            query {
-                project(id: "00000000-0000-0000-0000-000000000003") {
+            query Project($id: ID!){
+                project(id: $id) {
                     id
                     project
                 }
             }
         "#;
 
-        let left = client.query::<Value>(query).await.unwrap();
+        let left = client
+            .query_with_vars::<Value, Vars>(query, Vars { id: id.into() })
+            .await
+            .unwrap();
 
         let right = serde_json::json!({
             "project": {
-                "id": "00000000-0000-0000-0000-000000000003",
+                "id": id,
                 "project": "Project 3",
             }
         });
@@ -120,31 +129,39 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_delete_project() {}
-}
+    async fn test_delete_project() {
+        let app = TestApp::new().await;
+        let client = Client::new(&app.addr);
 
-// #[tokio::test]
-// async fn projects_delete_removes_project_from_database() {
-//     let app = TestApp::new().await;
-//     let client = reqwest::Client::new();
-//
-//     let project_id = "1";
-//
-//     let response = client
-//         .delete(format!("{}/projects/{}", app.addr, project_id))
-//         .send()
-//         .await
-//         .expect(format!("delete request failed to /projects/{}", project_id).as_str());
-//
-//     assert_eq!(response.status(), StatusCode::NO_CONTENT);
-//
-//     let response = client
-//         .get(format!("{}/projects/{}", app.addr, project_id))
-//         .send()
-//         .await
-//         .expect(format!("get request failed to /projects/{}", project_id).as_str());
-//
-//     assert_eq!(response.status(), StatusCode::NOT_FOUND);
-//
-//     // TODO: Add test for code 400 when row was not deleted
-// }
+        let id = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
+
+        let query = r#"
+            mutation deleteProject($id: ID!) {
+                deleteProject(
+                    input: {
+                        id: $id
+                    }
+                ) {
+                    id
+                }
+            }
+        "#;
+
+        let left = client
+            .query_with_vars::<Value, Vars>(query, Vars { id: id.into() })
+            .await
+            .unwrap();
+
+        let right = serde_json::json!({
+            "deleteProject": {
+                "id": id
+            }
+        });
+
+        assert_eq!(left, right);
+
+        let result = Project::fetch_one(id, &app.pg_pool).await;
+
+        assert!(matches!(result.err().unwrap(), AppError::RecordNotFound))
+    }
+}

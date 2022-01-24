@@ -2,9 +2,12 @@ mod common;
 
 #[cfg(test)]
 mod tests {
-    use crate::common::TestApp;
+    use crate::common::{TestApp, Vars};
     use reqwest_graphql::Client;
     use serde_json::Value;
+    use server::error::AppError;
+    use server::postgres::Estimate;
+    use uuid::Uuid;
 
     #[tokio::test]
     async fn test_estimates_query() {
@@ -82,7 +85,6 @@ mod tests {
             mutation {
                 createEstimate(
                     input: {
-                        id: "00000000-0000-0000-0000-000000000004"
                         projectId: "00000000-0000-0000-0000-000000000001"
                         description: "Estimate 4"
                     }
@@ -98,10 +100,14 @@ mod tests {
 
         let left = client.query::<Value>(query).await.unwrap();
 
+        let id = left["createEstimate"]["estimate"]["id"].as_str().unwrap();
+
+        assert!(Uuid::parse_str(id).is_ok());
+
         let right = serde_json::json!({
             "createEstimate": {
                 "estimate": {
-                    "id": "00000000-0000-0000-0000-000000000004",
+                    "id": id,
                     "description": "Estimate 4",
                     "cost": 0,
                 }
@@ -111,25 +117,61 @@ mod tests {
         assert_eq!(left, right);
 
         let query = r#"
-            query {
-                estimate(id: "00000000-0000-0000-0000-000000000004") {
+            query Estimate($id: ID!) {
+                estimate(id: $id) {
                     id
-                    description
-                    cost
                 }
             }
         "#;
 
-        let left = client.query::<Value>(query).await.unwrap();
+        let left = client
+            .query_with_vars::<Value, Vars>(query, Vars { id: id.into() })
+            .await
+            .unwrap();
 
         let right = serde_json::json!({
             "estimate": {
-                "id": "00000000-0000-0000-0000-000000000004",
-                "description": "Estimate 4",
-                "cost": 0,
+                "id": id,
             }
         });
 
         assert_eq!(left, right)
+    }
+
+    #[tokio::test]
+    async fn test_delete_estimate() {
+        let app = TestApp::new().await;
+        let client = Client::new(&app.addr);
+
+        let id = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
+
+        let query = r#"
+            mutation deleteEstimate($id: ID!){
+                deleteEstimate(
+                    input: {
+                        id: $id
+                    }
+                ) {
+                    id
+                }
+            }
+        "#;
+
+        let left = client
+            .query_with_vars::<Value, Vars>(query, Vars { id: id.into() })
+            .await
+            .unwrap();
+
+        let right = serde_json::json!({
+            "deleteEstimate": {
+                "id": id
+            }
+        });
+
+        assert_eq!(left, right);
+
+        let result = Estimate::fetch_one(id, &app.pg_pool).await;
+
+        assert!(matches!(result.err().unwrap(), AppError::RecordNotFound))
     }
 }

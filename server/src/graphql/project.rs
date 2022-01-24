@@ -1,27 +1,31 @@
 use crate::error::AppError;
 use crate::postgres::{Estimate, Project};
-use async_graphql::{Context, InputObject, Object, Result, SimpleObject};
+use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
 use sqlx::PgPool;
 
 #[derive(InputObject)]
 pub struct CreateProjectInput {
-    pub id: String,
     pub project: String,
+}
+
+#[derive(SimpleObject)]
+pub struct CreateProjectPayload {
+    pub project: Option<Project>,
 }
 
 #[derive(InputObject)]
 pub struct DeleteProjectInput {
-    pub id: String,
+    pub id: ID,
 }
 
 #[derive(SimpleObject)]
-pub struct ProjectPayload {
-    pub project: Option<Project>,
+pub struct DeleteProjectPayload {
+    pub id: ID,
 }
 
 #[Object]
 impl Project {
-    async fn id(&self) -> async_graphql::ID {
+    async fn id(&self) -> ID {
         self.id.into()
     }
 

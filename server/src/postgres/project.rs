@@ -54,7 +54,8 @@ impl Project {
         .map_err(sqlx_error)
     }
 
-    pub async fn delete(id: Uuid, pg_pool: &PgPool) -> Result<(), AppError> {
+    pub async fn delete(id: Uuid, pg_pool: &PgPool) -> Result<Uuid, AppError> {
+        // TODO: Change to soft delete
         let result = sqlx::query!(
             r#"
             DELETE FROM project 
@@ -66,13 +67,13 @@ impl Project {
         .await
         .map_err(sqlx_error);
 
-        // TODO: Improve this?
+        // TODO: Improve this? - Return deleted status from soft delete
         if let Ok(query) = result {
             if query.rows_affected() == 0 {
                 return Err(AppError::BadRequest);
             }
         }
 
-        Ok(())
+        Ok(id)
     }
 }

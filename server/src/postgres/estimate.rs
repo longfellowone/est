@@ -61,4 +61,27 @@ impl Estimate {
         .await
         .map_err(sqlx_error)
     }
+
+    pub async fn delete(id: Uuid, pg_pool: &PgPool) -> Result<Uuid, AppError> {
+        // TODO: Change to soft delete
+        let result = sqlx::query!(
+            r#"
+            DELETE FROM estimate 
+            WHERE id = $1
+            "#,
+            id
+        )
+        .execute(pg_pool)
+        .await
+        .map_err(sqlx_error);
+
+        // TODO: Improve this? - Return deleted status from soft delete
+        if let Ok(query) = result {
+            if query.rows_affected() == 0 {
+                return Err(AppError::BadRequest);
+            }
+        }
+
+        Ok(id)
+    }
 }

@@ -1,10 +1,13 @@
+use async_graphql::ID;
+use serde::Serialize;
 use server::config::{Configuration, Http, Postgres};
 use server::App;
-use sqlx::Executor;
+use sqlx::{Executor, PgPool};
 use uuid::Uuid;
 
 pub struct TestApp {
     pub addr: String,
+    pub pg_pool: PgPool,
 }
 
 // schema is private
@@ -36,9 +39,11 @@ impl TestApp {
             .await
             .ok();
 
+        let pg_pool = config.postgres.pool().await;
+
         // Run migrations to insert test data
         // sqlx::migrate!("./tests/migrations")
-        //     .run(&mut pg_connection)
+        //     .run(&pg_pool)
         //     .await
         //     .unwrap();
 
@@ -48,7 +53,7 @@ impl TestApp {
 
         tokio::spawn(async move { app.run().await });
 
-        TestApp { addr }
+        TestApp { addr, pg_pool }
     }
 }
 
@@ -73,4 +78,9 @@ impl Drop for TestApp {
 
         // "DROP DATABASE {}"
     }
+}
+
+#[derive(Serialize)]
+pub struct Vars {
+    pub id: ID,
 }

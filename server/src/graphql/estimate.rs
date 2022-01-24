@@ -1,21 +1,30 @@
 use crate::postgres::Estimate;
-use async_graphql::{InputObject, Object, SimpleObject};
+use async_graphql::{InputObject, Object, SimpleObject, ID};
 
 #[derive(Debug, InputObject)]
 pub struct CreateEstimateInput {
-    pub id: String,
-    pub project_id: String,
+    pub project_id: ID,
     pub description: String,
 }
 
 #[derive(SimpleObject)]
-pub struct EstimatePayload {
+pub struct CreateEstimatePayload {
     pub estimate: Option<Estimate>,
+}
+
+#[derive(InputObject)]
+pub struct DeleteEstimateInput {
+    pub id: ID,
+}
+
+#[derive(SimpleObject)]
+pub struct DeleteEstimatePayload {
+    pub id: ID,
 }
 
 #[Object]
 impl Estimate {
-    async fn id(&self) -> async_graphql::ID {
+    async fn id(&self) -> ID {
         self.id.into()
     }
 

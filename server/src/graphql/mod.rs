@@ -8,10 +8,11 @@ use axum::response;
 use query_root::QueryRoot;
 use sqlx::PgPool;
 
-pub(crate) mod estimate;
+mod estimate;
 mod mutation_root;
 mod project;
 mod query_root;
+mod schema;
 
 pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 

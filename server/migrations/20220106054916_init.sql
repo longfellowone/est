@@ -8,10 +8,11 @@ INSERT INTO project (id, project)
 VALUES ('00000000-0000-0000-0000-000000000001', 'Project 1'),
        ('00000000-0000-0000-0000-000000000002', 'Project 2');
 
+-- TODO: Remove ON DELETE CASCADE and change to soft delete
 CREATE TABLE estimate
 (
     id          uuid primary key,
-    project_id  uuid REFERENCES project (id) ON UPDATE CASCADE,
+    project_id  uuid REFERENCES project (id) ON UPDATE CASCADE ON DELETE CASCADE,
     description text NOT NULL,
     cost        int  NOT NULL
 );
