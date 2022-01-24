@@ -11,11 +11,11 @@ async fn main() -> hyper::Result<()> {
 
     let config = Configuration {
         http: Http {
-            host: "127.0.0.1".to_string(),
+            host: "localhost".to_string(),
             port: 8080,
         },
         postgres: Postgres {
-            host: "127.0.0.1".to_string(),
+            host: "localhost".to_string(),
             port: 5432,
             user: "postgres".to_string(),
             password: "postgres".to_string(),

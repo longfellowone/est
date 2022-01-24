@@ -1,20 +1,24 @@
 use crate::config::Configuration;
-use axum::http::StatusCode;
-use axum::{routing::get, AddExtensionLayer, Router};
-
+use axum::http::Method;
 use axum::response::IntoResponse;
+use axum::{routing::get, AddExtensionLayer, Router};
 use std::net::TcpListener;
 use tower::ServiceBuilder;
+use tower_http::cors::{any, CorsLayer};
 use tower_http::trace::TraceLayer;
 
 pub mod config;
-mod error;
-pub mod projects;
+pub mod error;
+pub mod graphql;
+pub mod postgres;
 
 pub struct App {
     router: Router,
     listener: TcpListener,
 }
+
+// Lookahead example
+// https://cs.github.com/cthit/hubbit2/blob/40cd6541c9b9daa6c65198fe6a763b5d794e8dc0/backend/src/schema/stats.rs#L420
 
 impl App {
     pub async fn new(config: Configuration) -> Self {
@@ -25,11 +29,18 @@ impl App {
             .await
             .expect("failed to migrate database");
 
+        let schema = graphql::schema(pg_pool).await;
+
+        let cors = CorsLayer::new()
+            .allow_methods(vec![Method::GET, Method::POST])
+            .allow_origin(any());
+
         let middleware = ServiceBuilder::new()
             .layer(TraceLayer::new_for_http())
-            .layer(AddExtensionLayer::new(pg_pool));
+            .layer(cors)
+            .layer(AddExtensionLayer::new(schema));
 
-        let routes = initialize_routes();
+        let routes = Router::new().route("/", get(graphql::playground).post(graphql::handler));
 
         let router = Router::new().merge(routes).layer(middleware);
 
@@ -56,20 +67,4 @@ impl App {
                 .expect("failed to get local_addr from listener")
         )
     }
-}
-
-fn initialize_routes() -> Router {
-    Router::new()
-        .route("/health_check", get(health_check))
-        .route("/projects", get(projects::list).post(projects::create))
-        .route(
-            "/projects/:id",
-            get(projects::get)
-                .post(projects::update)
-                .delete(projects::delete),
-        )
-}
-
-async fn health_check() -> impl IntoResponse {
-    StatusCode::OK
 }

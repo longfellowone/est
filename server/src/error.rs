@@ -7,7 +7,7 @@ use tracing::log::error;
 // TODO: Do something with errors
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
-    #[error("")]
+    #[error("Record not found")]
     RecordNotFound,
     #[error("")]
     BadRequest,

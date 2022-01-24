@@ -1,11 +1,17 @@
+use async_graphql::ID;
+use serde::Serialize;
 use server::config::{Configuration, Http, Postgres};
 use server::App;
-use sqlx::Executor;
+use sqlx::{Executor, PgPool};
 use uuid::Uuid;
 
 pub struct TestApp {
     pub addr: String,
+    pub pg_pool: PgPool,
 }
+
+// schema is private
+// TODO: add .execute() method to TestApp
 
 impl TestApp {
     pub async fn new() -> Self {
@@ -13,11 +19,11 @@ impl TestApp {
 
         let config = Configuration {
             http: Http {
-                host: "127.0.0.1".to_string(),
+                host: "localhost".to_string(),
                 port: 0,
             },
             postgres: Postgres {
-                host: "127.0.0.1".to_string(),
+                host: "localhost".to_string(),
                 port: 5432,
                 user: "postgres".to_string(),
                 password: "postgres".to_string(),
@@ -33,15 +39,11 @@ impl TestApp {
             .await
             .ok();
 
-        // Works, but how does this know what table to run migrations on?
-        sqlx::migrate!("./migrations")
-            .run(&mut pg_connection)
-            .await
-            .expect("failed to migrate database");
+        let pg_pool = config.postgres.pool().await;
 
         // Run migrations to insert test data
         // sqlx::migrate!("./tests/migrations")
-        //     .run(&mut pg_connection)
+        //     .run(&pg_pool)
         //     .await
         //     .unwrap();
 
@@ -51,7 +53,7 @@ impl TestApp {
 
         tokio::spawn(async move { app.run().await });
 
-        TestApp { addr }
+        TestApp { addr, pg_pool }
     }
 }
 
@@ -76,4 +78,9 @@ impl Drop for TestApp {
 
         // "DROP DATABASE {}"
     }
+}
+
+#[derive(Serialize)]
+pub struct Vars {
+    pub id: ID,
 }
