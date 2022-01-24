@@ -90,8 +90,7 @@ mod tests {
         let left = client.query::<Value>(query).await.unwrap();
 
         let id = left["createProject"]["project"]["id"].as_str().unwrap();
-
-        assert!(Uuid::parse_str(id).is_ok());
+        let id = Uuid::parse_str(id).unwrap();
 
         let right = serde_json::json!({
             "createProject": {
@@ -104,28 +103,9 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let query = r#"
-            query Project($id: ID!){
-                project(id: $id) {
-                    id
-                    project
-                }
-            }
-        "#;
+        let result = Project::fetch_one(id, &app.pg_pool).await;
 
-        let left = client
-            .query_with_vars::<Value, Vars>(query, Vars { id: id.into() })
-            .await
-            .unwrap();
-
-        let right = serde_json::json!({
-            "project": {
-                "id": id,
-                "project": "Project 3",
-            }
-        });
-
-        assert_eq!(left, right)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]

@@ -1,25 +1,32 @@
-use crate::graphql::mutation_root::MutationRoot;
+use crate::graphql::estimate::{EstimateMutations, EstimateQueries};
+use crate::graphql::project::{ProjectMutations, ProjectQueries};
 use crate::IntoResponse;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
-use async_graphql::{EmptySubscription, Schema};
+use async_graphql::{EmptySubscription, MergedObject, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::extract::Extension;
 use axum::response;
-use query_root::QueryRoot;
 use sqlx::PgPool;
 
 mod estimate;
-mod mutation_root;
 mod project;
-mod query_root;
-mod schema;
+
+#[derive(MergedObject, Default)]
+pub struct QueryRoot(ProjectQueries, EstimateQueries);
+
+#[derive(MergedObject, Default)]
+pub struct MutationRoot(ProjectMutations, EstimateMutations);
 
 pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub async fn schema(pg_pool: PgPool) -> GraphqlSchema {
-    Schema::build(QueryRoot, MutationRoot, EmptySubscription)
-        .data(pg_pool)
-        .finish()
+    Schema::build(
+        QueryRoot::default(),
+        MutationRoot::default(),
+        EmptySubscription,
+    )
+    .data(pg_pool)
+    .finish()
 }
 
 pub async fn handler(schema: Extension<GraphqlSchema>, req: GraphQLRequest) -> GraphQLResponse {

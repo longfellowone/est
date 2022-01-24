@@ -101,8 +101,7 @@ mod tests {
         let left = client.query::<Value>(query).await.unwrap();
 
         let id = left["createEstimate"]["estimate"]["id"].as_str().unwrap();
-
-        assert!(Uuid::parse_str(id).is_ok());
+        let id = Uuid::parse_str(id).unwrap();
 
         let right = serde_json::json!({
             "createEstimate": {
@@ -116,26 +115,9 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let query = r#"
-            query Estimate($id: ID!) {
-                estimate(id: $id) {
-                    id
-                }
-            }
-        "#;
+        let result = Estimate::fetch_one(id, &app.pg_pool).await;
 
-        let left = client
-            .query_with_vars::<Value, Vars>(query, Vars { id: id.into() })
-            .await
-            .unwrap();
-
-        let right = serde_json::json!({
-            "estimate": {
-                "id": id,
-            }
-        });
-
-        assert_eq!(left, right)
+        assert!(result.is_ok())
     }
 
     #[tokio::test]
