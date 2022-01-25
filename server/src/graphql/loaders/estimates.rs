@@ -23,7 +23,7 @@ impl Loader<Uuid> for EstimateLoader {
     async fn load(&self, keys: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
         // TODO: Check return type and move to postgres::Project
 
-        let result = sqlx::query_as!(
+        let results = sqlx::query_as!(
             Estimate,
             r#"
             SELECT id, project_id, description, cost
@@ -35,14 +35,8 @@ impl Loader<Uuid> for EstimateLoader {
         .fetch_all(&self.0)
         .await?;
 
-        let mut project_estimates = HashMap::new();
-
-        for (project, estimates) in &result.into_iter().group_by(|estimate| estimate.project_id) {
-            project_estimates
-                .entry(project)
-                .or_insert(estimates.collect::<Vec<Estimate>>());
-        }
-
-        Ok(project_estimates)
+        Ok(results
+            .into_iter()
+            .into_group_map_by(|estimate| estimate.project_id))
     }
 }
