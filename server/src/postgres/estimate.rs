@@ -11,7 +11,10 @@ pub struct Estimate {
 }
 
 impl Estimate {
-    pub async fn fetch_all(project_id: Uuid, pg_pool: &PgPool) -> Result<Vec<Self>, AppError> {
+    pub async fn fetch_all_for_project(
+        project_id: Uuid,
+        pg_pool: &PgPool,
+    ) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Estimate,
             r#"
@@ -37,6 +40,21 @@ impl Estimate {
             id
         )
         .fetch_one(pg_pool)
+        .await
+        .map_err(sqlx_error)
+    }
+
+    pub async fn fetch_in_project(ids: &[Uuid], pg_pool: &PgPool) -> Result<Vec<Self>, AppError> {
+        sqlx::query_as!(
+            Estimate,
+            r#"
+            SELECT id, project_id, description, cost
+            FROM estimate
+            WHERE project_id = ANY($1)
+            "#,
+            ids,
+        )
+        .fetch_all(pg_pool)
         .await
         .map_err(sqlx_error)
     }

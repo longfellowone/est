@@ -37,13 +37,13 @@ impl Project {
         self.project.to_string()
     }
 
-    async fn estimates(&self, ctx: &Context<'_>) -> Result<Option<Vec<Estimate>>> {
+    async fn estimates(&self, ctx: &Context<'_>) -> Result<Vec<Estimate>> {
         let result = ctx
             .data_unchecked::<DataLoader<EstimateLoader>>()
             .load_one(self.id)
             .await?;
 
-        Ok(result)
+        Ok(result.unwrap_or_default())
     }
 }
 
