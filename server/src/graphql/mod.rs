@@ -1,6 +1,8 @@
 use crate::graphql::estimate::{EstimateMutations, EstimateQueries};
+use crate::graphql::loaders::ProjectLoader;
 use crate::graphql::project::{ProjectMutations, ProjectQueries};
 use crate::IntoResponse;
+use async_graphql::dataloader::DataLoader;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptySubscription, MergedObject, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
@@ -9,6 +11,7 @@ use axum::response;
 use sqlx::PgPool;
 
 mod estimate;
+mod loaders;
 mod project;
 
 #[derive(MergedObject, Default)]
@@ -20,12 +23,15 @@ pub struct MutationRoot(ProjectMutations, EstimateMutations);
 pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub async fn schema(pg_pool: PgPool) -> GraphqlSchema {
+    let project_loader = DataLoader::new(ProjectLoader::new(pg_pool.clone()), tokio::spawn);
+
     Schema::build(
         QueryRoot::default(),
         MutationRoot::default(),
         EmptySubscription,
     )
     .data(pg_pool)
+    .data(project_loader)
     .finish()
 }
 

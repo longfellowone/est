@@ -1,9 +1,10 @@
 use crate::error::{sqlx_error, AppError};
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone, FromRow)]
 pub struct Project {
     pub id: Uuid,
     pub project: String,
@@ -37,6 +38,24 @@ impl Project {
         .await
         .map_err(sqlx_error)
     }
+
+    // pub async fn fetch_in(
+    //     ids: &[Uuid],
+    //     pg_pool: PgPool,
+    // ) -> Result<HashMap<Uuid, Project>, AppError> {
+    //     sqlx::query!(
+    //         r#"
+    //         SELECT id, project
+    //         FROM project
+    //         WHERE id = ANY($1)
+    //         "#,
+    //         ids
+    //     )
+    //     .fetch(&pg_pool)
+    //     .map_ok(|project: Project| (project.id, project))
+    //     .try_collect()
+    //     .await?
+    // }
 
     pub async fn create(new_project: Project, pg_pool: &PgPool) -> Result<Self, AppError> {
         sqlx::query_as!(

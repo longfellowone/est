@@ -1,4 +1,6 @@
+use crate::graphql::loaders::ProjectLoader;
 use crate::postgres::{Estimate, Project};
+use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
 use sqlx::PgPool;
 use uuid::Uuid;
