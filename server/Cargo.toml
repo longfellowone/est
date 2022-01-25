@@ -20,9 +20,12 @@ tracing = "0.1.29"
 tracing-subscriber = { version = "0.3.4", features = ["env-filter"] }
 #env_logger = "0.9.0"
 #log = "0.4.14"
-async-graphql = { version = "3.0.21", features = ["dataloader"] }
+async-graphql = { version = "3.0.21", features = ["dataloader","decimal"] }
 async-graphql-axum = "3.0.21"
 async-trait = "0.1.52"
+itertools = "0.10.3"
+#
+rust_decimal = "1.20.0"
 
 [dev-dependencies]
 reqwest-graphql = "1.0.0"

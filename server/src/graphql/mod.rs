@@ -1,5 +1,5 @@
 use crate::graphql::estimate::{EstimateMutations, EstimateQueries};
-use crate::graphql::loaders::ProjectLoader;
+use crate::graphql::loaders::{EstimateLoader, ProjectLoader};
 use crate::graphql::project::{ProjectMutations, ProjectQueries};
 use crate::IntoResponse;
 use async_graphql::dataloader::DataLoader;
@@ -24,6 +24,7 @@ pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub async fn schema(pg_pool: PgPool) -> GraphqlSchema {
     let project_loader = DataLoader::new(ProjectLoader::new(pg_pool.clone()), tokio::spawn);
+    let estimate_loader = DataLoader::new(EstimateLoader::new(pg_pool.clone()), tokio::spawn);
 
     Schema::build(
         QueryRoot::default(),
@@ -32,6 +33,7 @@ pub async fn schema(pg_pool: PgPool) -> GraphqlSchema {
     )
     .data(pg_pool)
     .data(project_loader)
+    .data(estimate_loader)
     .finish()
 }
 

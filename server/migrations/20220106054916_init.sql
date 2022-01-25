@@ -12,7 +12,7 @@ VALUES ('00000000-0000-0000-0000-000000000001', 'Project 1'),
 CREATE TABLE estimate
 (
     id          uuid primary key,
-    project_id  uuid REFERENCES project (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    project_id  uuid NOT NULL REFERENCES project (id) ON UPDATE CASCADE ON DELETE CASCADE,
     description text NOT NULL,
     cost        int  NOT NULL
 );

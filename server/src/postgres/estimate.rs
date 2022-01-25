@@ -2,9 +2,10 @@ use crate::error::{sqlx_error, AppError};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Estimate {
     pub id: Uuid,
+    pub project_id: Uuid,
     pub description: String,
     pub cost: i32,
 }
@@ -14,7 +15,7 @@ impl Estimate {
         sqlx::query_as!(
             Estimate,
             r#"
-            SELECT id, description, cost
+            SELECT id, project_id, description, cost
             FROM estimate
             WHERE project_id = $1
             "#,
@@ -29,7 +30,7 @@ impl Estimate {
         sqlx::query_as!(
             Estimate,
             r#"
-            SELECT id, description, cost
+            SELECT id, project_id, description, cost
             FROM estimate
             WHERE id = $1
             "#,
@@ -40,20 +41,16 @@ impl Estimate {
         .map_err(sqlx_error)
     }
 
-    pub async fn create(
-        estimate: Estimate,
-        project_id: Uuid,
-        pg_pool: &PgPool,
-    ) -> Result<Self, AppError> {
+    pub async fn create(estimate: Estimate, pg_pool: &PgPool) -> Result<Self, AppError> {
         sqlx::query_as!(
             Estimate,
             r#"
             INSERT INTO estimate (id, project_id, description, cost) 
             VALUES ($1, $2, $3, $4)
-            RETURNING id, description, cost
+            RETURNING id, project_id, description, cost
             "#,
             estimate.id,
-            project_id,
+            estimate.project_id,
             estimate.description,
             estimate.cost
         )

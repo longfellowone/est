@@ -1,5 +1,5 @@
 use crate::error::AppError;
-use crate::postgres::{Estimate, Project};
+use crate::postgres::Estimate;
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -34,10 +34,8 @@ impl Estimate {
         self.cost
     }
 
-    // TODO: Delete this, Estimate does not *have* a project...
+    // TODO: Delete this, Estimate does not have a project...
     // async fn project(&self, ctx: &Context<'_>) -> Result<Option<Project>> {
-    //     println!("{:?}", self.id);
-    //
     //     let result = ctx
     //         .data_unchecked::<DataLoader<ProjectLoader>>()
     //         .load_one(self.id)
@@ -61,13 +59,12 @@ impl EstimateMutations {
 
         let estimate = Estimate {
             id: Uuid::new_v4(),
+            project_id: Uuid::parse_str(&input.project_id).unwrap(),
             description: input.description,
             cost: 0,
         };
 
-        let project_id = Uuid::parse_str(&input.project_id).unwrap();
-
-        let estimate = Estimate::create(estimate, project_id, pg_pool).await?;
+        let estimate = Estimate::create(estimate, pg_pool).await?;
 
         let payload = CreateEstimatePayload {
             estimate: Some(estimate),

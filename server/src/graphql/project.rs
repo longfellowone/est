@@ -1,4 +1,4 @@
-use crate::graphql::loaders::ProjectLoader;
+use crate::graphql::loaders::EstimateLoader;
 use crate::postgres::{Estimate, Project};
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
@@ -37,15 +37,13 @@ impl Project {
         self.project.to_string()
     }
 
-    async fn estimates(&self, ctx: &Context<'_>) -> Option<Vec<Estimate>> {
-        let pg_pool = ctx.data_unchecked::<PgPool>();
+    async fn estimates(&self, ctx: &Context<'_>) -> Result<Option<Vec<Estimate>>> {
+        let result = ctx
+            .data_unchecked::<DataLoader<EstimateLoader>>()
+            .load_one(self.id)
+            .await?;
 
-        // TODO: Create a loader for estimates
-        // TODO: !!! Option should be on Estimate not Vec
-        match Estimate::fetch_all(self.id, pg_pool).await {
-            Ok(estimate) => Some(estimate),
-            Err(_) => None,
-        }
+        Ok(result)
     }
 }
 
