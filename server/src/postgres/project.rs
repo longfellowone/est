@@ -45,7 +45,7 @@ impl Project {
             r#"
             INSERT INTO project (id, project)
             VALUES ($1, $2)
-            RETURNING *
+            RETURNING id, project
             "#,
             new_project.id,
             new_project.project

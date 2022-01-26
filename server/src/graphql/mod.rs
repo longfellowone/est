@@ -13,6 +13,7 @@ use sqlx::PgPool;
 mod estimate;
 mod loaders;
 mod project;
+mod assembly;
 
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(ProjectQueries, EstimateQueries);

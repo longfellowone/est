@@ -20,8 +20,8 @@ impl Loader<Uuid> for EstimateLoader {
     type Value = Vec<Estimate>;
     type Error = FieldError;
 
-    async fn load(&self, keys: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
-        let estimates = Estimate::fetch_in_project(keys, &self.0).await?;
+    async fn load(&self, project_ids: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
+        let estimates = Estimate::fetch_in_project(project_ids, &self.0).await?;
 
         Ok(estimates
             .into_iter()

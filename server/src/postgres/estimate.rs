@@ -6,7 +6,7 @@ use uuid::Uuid;
 pub struct Estimate {
     pub id: Uuid,
     pub project_id: Uuid,
-    pub description: String,
+    pub estimate: String,
     pub cost: i32,
 }
 
@@ -18,7 +18,7 @@ impl Estimate {
         sqlx::query_as!(
             Estimate,
             r#"
-            SELECT id, project_id, description, cost
+            SELECT id, project_id, estimate, cost
             FROM estimate
             WHERE project_id = $1
             "#,
@@ -33,7 +33,7 @@ impl Estimate {
         sqlx::query_as!(
             Estimate,
             r#"
-            SELECT id, project_id, description, cost
+            SELECT id, project_id, estimate, cost
             FROM estimate
             WHERE id = $1
             "#,
@@ -48,7 +48,7 @@ impl Estimate {
         sqlx::query_as!(
             Estimate,
             r#"
-            SELECT id, project_id, description, cost
+            SELECT id, project_id, estimate, cost
             FROM estimate
             WHERE project_id = ANY($1)
             "#,
@@ -63,13 +63,13 @@ impl Estimate {
         sqlx::query_as!(
             Estimate,
             r#"
-            INSERT INTO estimate (id, project_id, description, cost) 
+            INSERT INTO estimate (id, project_id, estimate, cost) 
             VALUES ($1, $2, $3, $4)
-            RETURNING id, project_id, description, cost
+            RETURNING id, project_id, estimate, cost
             "#,
             estimate.id,
             estimate.project_id,
-            estimate.description,
+            estimate.estimate,
             estimate.cost
         )
         .fetch_one(pg_pool)
@@ -98,5 +98,34 @@ impl Estimate {
         }
 
         Ok(id)
+    }
+
+    pub async fn add_assembly(
+        estimate_id: Uuid,
+        assembly_id: Uuid,
+        pg_pool: &PgPool,
+    ) -> Result<Self, AppError> {
+        sqlx::query_as!(
+            Estimate,
+            r#"
+            WITH estimate_assemblies AS (
+                INSERT INTO estimate_assemblies (estimate_id, assembly_id, quantity)
+                VALUES ($1, $2, $3)
+                RETURNING estimate_id
+            )
+            SELECT e.id as "id!",
+                   e.project_id as "project_id!",
+                   e.estimate as "estimate!",
+                   e.cost as "cost!"
+            FROM estimate_assemblies ea
+            INNER JOIN estimate e on e.id = ea.estimate_id
+            "#,
+            estimate_id,
+            assembly_id,
+            0
+        )
+        .fetch_one(pg_pool)
+        .await
+        .map_err(sqlx_error)
     }
 }

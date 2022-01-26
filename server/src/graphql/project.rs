@@ -12,7 +12,7 @@ pub struct ProjectQueries;
 impl ProjectQueries {
     async fn project(&self, ctx: &Context<'_>, id: ID) -> Result<Project> {
         let pg_pool = ctx.data_unchecked::<PgPool>();
-        let id = Uuid::parse_str(&id).unwrap();
+        let id = Uuid::parse_str(&id)?;
 
         let project = Project::fetch_one(id, pg_pool).await?;
 
@@ -80,7 +80,7 @@ impl ProjectMutations {
     ) -> Result<DeleteProjectPayload> {
         let pg_pool = ctx.data_unchecked::<PgPool>();
 
-        let id = Uuid::parse_str(&input.id).unwrap();
+        let id = Uuid::parse_str(&input.id)?;
 
         let id = Project::delete(id, pg_pool).await?;
 
