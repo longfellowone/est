@@ -1,4 +1,4 @@
-use crate::postgres::Estimate;
+use crate::estimating::Estimate;
 use async_graphql::dataloader::Loader;
 use async_graphql::FieldError;
 use async_trait::async_trait;

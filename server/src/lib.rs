@@ -9,8 +9,8 @@ use tower_http::trace::TraceLayer;
 
 pub mod config;
 pub mod error;
+pub mod estimating;
 pub mod graphql;
-pub mod postgres;
 
 pub struct App {
     router: Router,

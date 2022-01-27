@@ -6,7 +6,7 @@ mod tests {
     use reqwest_graphql::Client;
     use serde_json::Value;
     use server::error::AppError;
-    use server::postgres::Estimate;
+    use server::estimating::Estimate;
     use uuid::Uuid;
 
     #[tokio::test]
@@ -117,6 +117,7 @@ mod tests {
 
         let result = Estimate::fetch_one(id, &app.pg_pool).await;
 
+        // Todo: Make this check better
         assert!(result.is_ok())
     }
 
@@ -155,93 +156,5 @@ mod tests {
         let result = Estimate::fetch_one(id, &app.pg_pool).await;
 
         assert!(matches!(result.err().unwrap(), AppError::RecordNotFound))
-    }
-
-    #[tokio::test]
-    async fn test_estimate_has_assemblies() {
-        let app = TestApp::new().await;
-        let client = Client::new(&app.addr);
-
-        let query = r#"
-            query {
-                estimate(id: "00000000-0000-0000-0000-000000000001") {
-                    assemblies {
-                        id
-                        assembly
-                        quantity
-                    }               
-                }
-            }
-        "#;
-
-        let left = client.query::<Value>(query).await.unwrap();
-
-        let right = serde_json::json!({
-            "estimate": {
-                "assemblies": [
-                    {
-                        "id": "00000000-0000-0000-0000-000000000001",
-                        "assembly": "Assembly 1",
-                        "quantity": 10
-                    },
-                    {
-                        "id": "00000000-0000-0000-0000-000000000002",
-                        "assembly": "Assembly 2",
-                        "quantity": 20
-                    }
-                ]
-            }
-        });
-
-        assert_eq!(left, right)
-    }
-
-    #[tokio::test]
-    async fn test_add_assembly_to_estimate() {
-        let app = TestApp::new().await;
-        let client = Client::new(&app.addr);
-
-        let query = r#"
-            mutation {
-                addAssemblyToEstimate(
-                    input: {
-                        estimateId: "00000000-0000-0000-0000-000000000003"
-                        assemblyId: "00000000-0000-0000-0000-000000000003"
-                    }
-                ) {
-                    estimate {
-                        id
-                        assemblies {
-                            id
-                            assembly
-                            quantity
-                        }
-                    }
-                }
-            }
-        "#;
-
-        let left = client.query::<Value>(query).await.unwrap();
-
-        let right = serde_json::json!({
-            "addAssemblyToEstimate": {
-                "estimate": {
-                    "id": "00000000-0000-0000-0000-000000000003",
-                    "assemblies": [
-                        {
-                            "id": "00000000-0000-0000-0000-000000000003",
-                            "assembly": "Assembly 3",
-                            "quantity": 0
-                        }
-                    ]
-                }
-            }
-        });
-
-        assert_eq!(left, right);
-
-        // let result = Estimate::fetch_one("00000000-0000-0000-0000-000000000003", &app.pg_pool).await;
-        //
-        // assert!(result.is_ok())
     }
 }

@@ -1,4 +1,3 @@
-mod assembly;
 mod common;
 
 #[cfg(test)]
@@ -7,7 +6,7 @@ mod tests {
     use reqwest_graphql::Client;
     use serde_json::Value;
     use server::error::AppError;
-    use server::postgres::Project;
+    use server::estimating::Project;
     use uuid::Uuid;
 
     #[tokio::test]
@@ -106,6 +105,7 @@ mod tests {
 
         let result = Project::fetch_one(id, &app.pg_pool).await;
 
+        // Todo: Make this check better
         assert!(result.is_ok())
     }
 

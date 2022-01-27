@@ -1,3 +1,4 @@
+use crate::graphql::assembly::AssemblyQueries;
 use crate::graphql::estimate::{EstimateMutations, EstimateQueries};
 use crate::graphql::loaders::{EstimateLoader, ProjectLoader};
 use crate::graphql::project::{ProjectMutations, ProjectQueries};
@@ -10,13 +11,14 @@ use axum::extract::Extension;
 use axum::response;
 use sqlx::PgPool;
 
+mod assembly;
 mod estimate;
+mod estimate_assembly;
 mod loaders;
 mod project;
-mod assembly;
 
 #[derive(MergedObject, Default)]
-pub struct QueryRoot(ProjectQueries, EstimateQueries);
+pub struct QueryRoot(ProjectQueries, EstimateQueries, AssemblyQueries);
 
 #[derive(MergedObject, Default)]
 pub struct MutationRoot(ProjectMutations, EstimateMutations);
