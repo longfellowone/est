@@ -1,7 +1,7 @@
 pub mod assembly;
 pub mod estimate;
 pub mod estimate_assembly;
-mod item;
+pub mod item;
 pub mod project;
 
 pub use assembly::Assembly;

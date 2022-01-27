@@ -17,8 +17,8 @@ impl Configuration {
             postgres: Postgres {
                 host: "127.0.0.1".to_string(),
                 port: 5432,
-                user: "estimating".to_string(),
-                password: "estimating".to_string(),
+                user: "postgres".to_string(),
+                password: "postgres".to_string(),
                 database: format!("test_{}", Uuid::new_v4().to_string().replace('-', "")),
                 sslmode: false,
             },
