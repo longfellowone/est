@@ -1,5 +1,8 @@
+use crate::estimating::assembly_item::AssemblyItem;
 use crate::estimating::EstimateAssembly;
-use async_graphql::{Object, ID};
+use crate::graphql::loaders::AssemblyItemLoader;
+use async_graphql::dataloader::DataLoader;
+use async_graphql::{Context, Object, Result, ID};
 use rust_decimal::prelude::ToPrimitive;
 
 #[Object]
@@ -18,5 +21,14 @@ impl EstimateAssembly {
 
     async fn quantity(&self) -> i32 {
         self.quantity
+    }
+
+    async fn items(&self, ctx: &Context<'_>) -> Result<Vec<AssemblyItem>> {
+        let result = ctx
+            .data_unchecked::<DataLoader<AssemblyItemLoader>>()
+            .load_one(self.id)
+            .await?;
+
+        Ok(result.unwrap_or_default())
     }
 }

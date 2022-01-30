@@ -819,6 +819,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "gql_client"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60568e9ee5f78e2e23c79ea0589a1c794b1c65e72f20947e94993cbfd59bf4cf"
+dependencies = [
+ "reqwest",
+ "serde",
+]
+
+[[package]]
 name = "h2"
 version = "0.3.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1679,16 +1689,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "reqwest-graphql"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33aaff48fee40ce5c00a89dcad0f14955500f6a0f5309ffb8639fec329480136"
-dependencies = [
- "reqwest",
- "serde",
-]
-
-[[package]]
 name = "ring"
 version = "0.16.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1871,9 +1871,9 @@ dependencies = [
  "chrono",
  "criterion",
  "csv",
+ "gql_client",
  "hyper",
  "itertools",
- "reqwest-graphql",
  "rust_decimal",
  "serde",
  "serde_json",

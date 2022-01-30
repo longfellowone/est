@@ -1,5 +1,7 @@
 use crate::estimating::estimate_assembly::EstimateAssembly;
 use crate::estimating::Estimate;
+use crate::graphql::loaders::EstimateAssembliesLoader;
+use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -14,29 +16,20 @@ impl Estimate {
         self.estimate.to_string()
     }
 
-    // TODO: Calculate this every time, remove field from struct?
+    // TODO: Calculate this every time? remove field?
+    // TODO: When calculate this each time, feed loader cache?
     async fn cost(&self) -> i32 {
         self.cost
     }
 
     async fn assemblies(&self, ctx: &Context<'_>) -> Result<Vec<EstimateAssembly>> {
-        let pg_pool = ctx.data_unchecked::<PgPool>();
+        let result = ctx
+            .data_unchecked::<DataLoader<EstimateAssembliesLoader>>()
+            .load_one(self.id)
+            .await?;
 
-        // TODO: Create dataloader - fetch_in_estimate
-        let assemblies = EstimateAssembly::fetch_all(self.id, pg_pool).await?;
-
-        Ok(assemblies)
+        Ok(result.unwrap_or_default())
     }
-
-    // TODO: Delete this, Estimate does not have a project...
-    // async fn project(&self, ctx: &Context<'_>) -> Result<Option<Project>> {
-    //     let result = ctx
-    //         .data_unchecked::<DataLoader<ProjectLoader>>()
-    //         .load_one(self.id)
-    //         .await?;
-    //
-    //     Ok(result)
-    // }
 }
 
 #[derive(Default)]

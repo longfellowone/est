@@ -3,7 +3,7 @@ mod common;
 #[cfg(test)]
 mod tests {
     use crate::common::{TestApp, Vars};
-    use reqwest_graphql::Client;
+    use gql_client::Client;
     use serde_json::Value;
     use server::error::AppError;
     use server::estimating::Project;

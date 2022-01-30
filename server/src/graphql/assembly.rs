@@ -1,3 +1,4 @@
+use crate::estimating::assembly_item::AssemblyItem;
 use crate::estimating::Assembly;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
@@ -11,6 +12,14 @@ impl Assembly {
 
     async fn assembly(&self) -> String {
         self.assembly.to_string()
+    }
+
+    async fn items(&self, ctx: &Context<'_>) -> Result<Vec<AssemblyItem>> {
+        let pg_pool = ctx.data_unchecked::<PgPool>();
+
+        let items = AssemblyItem::fetch_all(self.id, pg_pool).await?;
+
+        Ok(items)
     }
 }
 

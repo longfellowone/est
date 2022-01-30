@@ -4,7 +4,7 @@ use server::{config::Configuration, App};
 #[tokio::main]
 async fn main() -> hyper::Result<()> {
     if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "server=debug,tower_http=error,sqlx=error");
+        std::env::set_var("RUST_LOG", "server=debug,tower_http=debug,sqlx=debug");
     }
 
     tracing_subscriber::fmt::init();

@@ -1,6 +1,8 @@
 use crate::graphql::assembly::AssemblyQueries;
 use crate::graphql::estimate::{EstimateMutations, EstimateQueries};
-use crate::graphql::loaders::{EstimateLoader, ProjectLoader};
+use crate::graphql::loaders::{
+    AssemblyItemLoader, EstimateAssembliesLoader, EstimateLoader, ProjectLoader,
+};
 use crate::graphql::project::{ProjectMutations, ProjectQueries};
 use crate::IntoResponse;
 use async_graphql::dataloader::DataLoader;
@@ -12,6 +14,7 @@ use axum::response;
 use sqlx::PgPool;
 
 mod assembly;
+pub mod assembly_item;
 mod estimate;
 mod estimate_assembly;
 mod loaders;
@@ -27,7 +30,11 @@ pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub async fn schema(pg_pool: PgPool) -> GraphqlSchema {
     let project_loader = DataLoader::new(ProjectLoader::new(pg_pool.clone()), tokio::spawn);
-    let estimate_loader = DataLoader::new(EstimateLoader::new(pg_pool.clone()), tokio::spawn);
+    let estimates_loader = DataLoader::new(EstimateLoader::new(pg_pool.clone()), tokio::spawn);
+    let assembly_items_loader =
+        DataLoader::new(AssemblyItemLoader::new(pg_pool.clone()), tokio::spawn);
+    let estimate_assemblies_loader =
+        DataLoader::new(EstimateAssembliesLoader::new(pg_pool.clone()), tokio::spawn);
 
     Schema::build(
         QueryRoot::default(),
@@ -36,7 +43,9 @@ pub async fn schema(pg_pool: PgPool) -> GraphqlSchema {
     )
     .data(pg_pool)
     .data(project_loader)
-    .data(estimate_loader)
+    .data(estimates_loader)
+    .data(assembly_items_loader)
+    .data(estimate_assemblies_loader)
     .finish()
 }
 

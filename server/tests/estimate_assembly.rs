@@ -4,7 +4,7 @@ mod common;
 mod tests {
     use crate::common::TestApp;
     use async_graphql::ID;
-    use reqwest_graphql::Client;
+    use gql_client::Client;
     use serde::Serialize;
     use serde_json::Value;
     use server::estimating::EstimateAssembly;
@@ -122,10 +122,81 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let result = EstimateAssembly::fetch_all(estimate_id, &app.pg_pool).await;
+        let result = EstimateAssembly::fetch_in_estimate(&[estimate_id], &app.pg_pool).await;
 
         // Todo: Make this check better
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 1)
+    }
+
+    #[tokio::test]
+    async fn test_estimate_assemblies_has_items() {
+        let app = TestApp::new().await;
+        let client = Client::new(&app.addr);
+
+        let query = r#"
+            query {
+                estimate(id: "00000000-0000-0000-0000-000000000001") {
+                    assemblies {
+                        id
+                        items {
+                            id
+                            item
+                            cost
+                            quantity
+                        }
+                    }
+                }
+            }
+        "#;
+
+        let left = client.query::<Value>(query).await.unwrap();
+
+        let right = serde_json::json!({
+            "estimate": {
+                "assemblies": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000001",
+                        "items": [
+                            {
+                                "id": "00000000-0000-0000-0000-000000000001",
+                                "item": "Item 1",
+                                "cost": 10.00,
+                                "quantity": 100
+                            },
+                            {
+                                "id": "00000000-0000-0000-0000-000000000003",
+                                "item": "Item 3",
+                                "cost": 30.00,
+                                "quantity": 300,
+                            }
+                        ]
+                    },
+                    {
+                        "id": "00000000-0000-0000-0000-000000000002",
+                        "items": [
+                            {
+                                "id": "00000000-0000-0000-0000-000000000002",
+                                "item": "Item 2",
+                                "cost": 20.00,
+                                "quantity": 200
+                            },
+                            {
+                                "id": "00000000-0000-0000-0000-000000000003",
+                                "item": "Item 3",
+                                "cost": 30.00,
+                                "quantity": 300,
+                            }
+                        ]
+                    },
+                    {
+                        "id": "00000000-0000-0000-0000-000000000003",
+                        "items": []
+                    },
+                ]
+            }
+        });
+
+        assert_eq!(left, right)
     }
 }

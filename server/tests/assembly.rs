@@ -1,5 +1,5 @@
 use crate::common::TestApp;
-use reqwest_graphql::Client;
+use gql_client::Client;
 use serde_json::Value;
 
 mod common;
