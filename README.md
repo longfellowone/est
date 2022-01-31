@@ -14,6 +14,6 @@ Todo
 
 `docker-compose up -d`
 
-`sqlx migrate run`
+`sqlx migrate run` - If not installed run `cargo install sqlx-cli`
 
 `cargo test`

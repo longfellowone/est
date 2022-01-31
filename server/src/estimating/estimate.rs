@@ -108,7 +108,7 @@ impl Estimate {
         sqlx::query_as!(
             Estimate,
             r#"
-            WITH estimate_assemblies AS (
+            WITH insert AS (
                 INSERT INTO estimate_assemblies (estimate_id, assembly_id, quantity)
                 VALUES ($1, $2, $3)
                 RETURNING estimate_id
@@ -117,8 +117,8 @@ impl Estimate {
                    e.project_id as "project_id!",
                    e.estimate as "estimate!",
                    e.cost as "cost!"
-            FROM estimate_assemblies ea
-            INNER JOIN estimate e on e.id = ea.estimate_id
+            FROM insert i
+            INNER JOIN estimate e on e.id = i.estimate_id
             "#,
             estimate_id,
             assembly_id,

@@ -1,8 +1,36 @@
-use crate::postgres::assembly::Assembly;
-use crate::postgres::Estimate;
+use crate::estimating::estimate_assembly::EstimateAssembly;
+use crate::estimating::Estimate;
+use crate::graphql::loaders::EstimateAssembliesLoader;
+use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
 use sqlx::PgPool;
 use uuid::Uuid;
+
+#[Object]
+impl Estimate {
+    async fn id(&self) -> ID {
+        ID::from(self.id)
+    }
+
+    async fn estimate(&self) -> String {
+        self.estimate.to_string()
+    }
+
+    // TODO: Calculate this every time? remove field?
+    // TODO: When calculate this each time, feed loader cache?
+    async fn cost(&self) -> i32 {
+        self.cost
+    }
+
+    async fn assemblies(&self, ctx: &Context<'_>) -> Result<Vec<EstimateAssembly>> {
+        let result = ctx
+            .data_unchecked::<DataLoader<EstimateAssembliesLoader>>()
+            .load_one(self.id)
+            .await?;
+
+        Ok(result.unwrap_or_default())
+    }
+}
 
 #[derive(Default)]
 pub struct EstimateQueries;
@@ -17,41 +45,6 @@ impl EstimateQueries {
 
         Ok(estimate)
     }
-}
-
-#[Object]
-impl Estimate {
-    async fn id(&self) -> ID {
-        self.id.into()
-    }
-
-    async fn estimate(&self) -> String {
-        self.estimate.to_string()
-    }
-
-    // TODO: Calculate this every time, remove field from struct?
-    async fn cost(&self) -> i32 {
-        self.cost
-    }
-
-    async fn assemblies(&self, ctx: &Context<'_>) -> Result<Vec<Assembly>> {
-        let pg_pool = ctx.data_unchecked::<PgPool>();
-
-        // TODO: Create dataloader - fetch_in_estimate
-        let assemblies = Assembly::fetch_all_for_estimate(self.id, pg_pool).await?;
-
-        Ok(assemblies)
-    }
-
-    // TODO: Delete this, Estimate does not have a project...
-    // async fn project(&self, ctx: &Context<'_>) -> Result<Option<Project>> {
-    //     let result = ctx
-    //         .data_unchecked::<DataLoader<ProjectLoader>>()
-    //         .load_one(self.id)
-    //         .await?;
-    //
-    //     Ok(result)
-    // }
 }
 
 #[derive(Default)]
@@ -106,9 +99,9 @@ impl EstimateMutations {
         let pg_pool = ctx.data_unchecked::<PgPool>();
 
         let estimate_id = Uuid::parse_str(&input.estimate_id)?;
-        let project_id = Uuid::parse_str(&input.assembly_id)?;
+        let assembly_id = Uuid::parse_str(&input.assembly_id)?;
 
-        let estimate = Estimate::add_assembly(estimate_id, project_id, pg_pool).await?;
+        let estimate = Estimate::add_assembly(estimate_id, assembly_id, pg_pool).await?;
 
         let payload = AddAssemblyToEstimatePayload {
             estimate: Some(estimate),

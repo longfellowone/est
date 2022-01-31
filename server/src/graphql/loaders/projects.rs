@@ -1,4 +1,4 @@
-use crate::postgres::Project;
+use crate::estimating::Project;
 use async_graphql::dataloader::Loader;
 use async_graphql::futures_util::TryStreamExt;
 use async_trait::async_trait;
