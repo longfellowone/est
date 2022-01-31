@@ -3,7 +3,6 @@ use crate::estimating::EstimateAssembly;
 use crate::graphql::loaders::AssemblyItemLoader;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
-use rust_decimal::prelude::ToPrimitive;
 
 #[Object]
 impl EstimateAssembly {
@@ -15,8 +14,8 @@ impl EstimateAssembly {
         self.assembly.to_string()
     }
 
-    async fn cost(&self) -> f64 {
-        self.cost.round_dp(2).to_f64().unwrap()
+    async fn cost(&self) -> i32 {
+        self.cost
     }
 
     async fn quantity(&self) -> i32 {

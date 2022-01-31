@@ -24,8 +24,7 @@ async-graphql = { version = "3.0.21", features = ["dataloader", "decimal"] }
 async-graphql-axum = "3.0.21"
 async-trait = "0.1.52"
 itertools = "0.10.3"
-#
-rust_decimal = "1.20.0"
+
 
 [dev-dependencies]
 gql_client = "1.0.2"

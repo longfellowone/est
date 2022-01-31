@@ -13,26 +13,25 @@ CREATE TABLE estimate
 (
     id         uuid PRIMARY KEY,
     project_id uuid NOT NULL REFERENCES project (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    estimate   text NOT NULL,
-    cost       int  NOT NULL
+    estimate   text NOT NULL
 );
 
-INSERT INTO estimate (id, project_id, estimate, cost)
-VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Estimate 1', 100),
-       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Estimate 2', 200),
-       ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002', 'Estimate 3', 300);
+INSERT INTO estimate (id, project_id, estimate)
+VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Estimate 1'),
+       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Estimate 2'),
+       ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002', 'Estimate 3');
 
 CREATE TABLE assembly
 (
     id       uuid PRIMARY KEY,
-    assembly text    NOT NULL,
-    cost     numeric NOT NULL
+    assembly text NOT NULL,
+    cost     int  NOT NULL
 );
 
 INSERT INTO assembly (id, assembly, cost)
-VALUES ('00000000-0000-0000-0000-000000000001', 'Assembly 1', 99.995),
-       ('00000000-0000-0000-0000-000000000002', 'Assembly 2', 200.00),
-       ('00000000-0000-0000-0000-000000000003', 'Assembly 3', 300.00);
+VALUES ('00000000-0000-0000-0000-000000000001', 'Assembly 1', 100),
+       ('00000000-0000-0000-0000-000000000002', 'Assembly 2', 200),
+       ('00000000-0000-0000-0000-000000000003', 'Assembly 3', 300);
 
 CREATE TABLE estimate_assemblies
 (
@@ -55,13 +54,13 @@ CREATE TABLE item
 (
     id   uuid PRIMARY KEY,
     item text NOT NULL,
-    cost numeric NOT NULL
+    cost int  NOT NULL
 );
 
 INSERT INTO item (id, item, cost)
-VALUES ('00000000-0000-0000-0000-000000000001', 'Item 1', 9.995),
-       ('00000000-0000-0000-0000-000000000002', 'Item 2', 20.00),
-       ('00000000-0000-0000-0000-000000000003', 'Item 3', 30.00);
+VALUES ('00000000-0000-0000-0000-000000000001', 'Item 1', 10),
+       ('00000000-0000-0000-0000-000000000002', 'Item 2', 20),
+       ('00000000-0000-0000-0000-000000000003', 'Item 3', 30);
 
 CREATE TABLE assembly_items
 (

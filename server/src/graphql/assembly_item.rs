@@ -1,6 +1,5 @@
 use crate::estimating::assembly_item::AssemblyItem;
 use async_graphql::{Object, ID};
-use rust_decimal::prelude::ToPrimitive;
 
 #[Object]
 impl AssemblyItem {
@@ -12,8 +11,8 @@ impl AssemblyItem {
         self.item.to_string()
     }
 
-    async fn cost(&self) -> f64 {
-        self.cost.round_dp(2).to_f64().unwrap()
+    async fn cost(&self) -> i32 {
+        self.cost
     }
 
     async fn quantity(&self) -> i32 {

@@ -1,5 +1,4 @@
 use crate::error::{sqlx_error, AppError};
-use rust_decimal::Decimal;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -8,7 +7,7 @@ pub struct AssemblyItem {
     pub id: Uuid,
     pub assembly_id: Uuid,
     pub item: String,
-    pub cost: Decimal,
+    pub cost: i32,
     pub quantity: i32,
 }
 
@@ -20,8 +19,7 @@ impl AssemblyItem {
             SELECT i.id, ai.assembly_id, i.item, i.cost, ai.quantity
             FROM item i
             INNER JOIN assembly_items ai on ai.item_id = i.id
-            INNER JOIN assembly a on a.id = ai.assembly_id
-            WHERE a.id = $1
+            WHERE ai.assembly_id = $1
             "#,
             assembly_id
         )

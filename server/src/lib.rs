@@ -24,7 +24,6 @@ impl App {
     pub async fn new(config: Configuration) -> Self {
         let pg_pool = config.postgres.pool().await;
 
-        // TODO: keep getting "VersionMissing" error when have more than 1 migration
         sqlx::migrate!("./migrations")
             .run(&pg_pool)
             .await

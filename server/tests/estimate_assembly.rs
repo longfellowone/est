@@ -36,19 +36,19 @@ mod tests {
                     {
                         "id": "00000000-0000-0000-0000-000000000001",
                         "assembly": "Assembly 1",
-                        "cost": 100.00,
+                        "cost": 100,
                         "quantity": 10
                     },
                     {
                         "id": "00000000-0000-0000-0000-000000000002",
                         "assembly": "Assembly 2",
-                        "cost": 200.00,
+                        "cost": 200,
                         "quantity": 20,
                     },
                     {
                         "id": "00000000-0000-0000-0000-000000000003",
                         "assembly": "Assembly 3",
-                        "cost": 300.00, // Check that rounding worked from 299.995
+                        "cost": 300, // Check that rounding worked from 299.995
                         "quantity": 30,
                     },
                 ]
@@ -112,7 +112,7 @@ mod tests {
                         {
                             "id": assembly_id,
                             "assembly": "Assembly 3",
-                            "cost": 300.00,
+                            "cost": 300,
                             "quantity": 0,
                         }
                     ]
@@ -161,13 +161,13 @@ mod tests {
                             {
                                 "id": "00000000-0000-0000-0000-000000000001",
                                 "item": "Item 1",
-                                "cost": 10.00,
+                                "cost": 10,
                                 "quantity": 100
                             },
                             {
                                 "id": "00000000-0000-0000-0000-000000000003",
                                 "item": "Item 3",
-                                "cost": 30.00,
+                                "cost": 30,
                                 "quantity": 300,
                             }
                         ]
@@ -178,13 +178,13 @@ mod tests {
                             {
                                 "id": "00000000-0000-0000-0000-000000000002",
                                 "item": "Item 2",
-                                "cost": 20.00,
+                                "cost": 20,
                                 "quantity": 200
                             },
                             {
                                 "id": "00000000-0000-0000-0000-000000000003",
                                 "item": "Item 3",
-                                "cost": 30.00,
+                                "cost": 30,
                                 "quantity": 300,
                             }
                         ]

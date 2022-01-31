@@ -1,3 +1,4 @@
+use crate::estimating::estimate::EstimateItem;
 use crate::estimating::estimate_assembly::EstimateAssembly;
 use crate::estimating::Estimate;
 use crate::graphql::loaders::EstimateAssembliesLoader;
@@ -16,10 +17,12 @@ impl Estimate {
         self.estimate.to_string()
     }
 
-    // TODO: Calculate this every time? remove field?
-    // TODO: When calculate this each time, feed loader cache?
-    async fn cost(&self) -> i32 {
-        self.cost
+    async fn cost(&self, ctx: &Context<'_>) -> Result<i32> {
+        let pg_pool = ctx.data_unchecked::<PgPool>();
+
+        let cost = EstimateItem::cost(self.id, pg_pool).await?;
+
+        Ok(cost)
     }
 
     async fn assemblies(&self, ctx: &Context<'_>) -> Result<Vec<EstimateAssembly>> {
@@ -63,7 +66,6 @@ impl EstimateMutations {
             id: Uuid::new_v4(),
             project_id: Uuid::parse_str(&input.project_id)?,
             estimate: input.estimate,
-            cost: 0,
         };
 
         let estimate = Estimate::create(estimate, pg_pool).await?;
