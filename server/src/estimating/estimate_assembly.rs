@@ -1,6 +1,8 @@
-// #![allow(dead_code)]
+#![allow(dead_code)]
 use crate::error::{sqlx_error, AppError};
 use rust_decimal::Decimal;
+// use serde::Deserialize;
+// use std::collections::HashMap;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -36,72 +38,52 @@ impl EstimateAssembly {
         .await
         .map_err(sqlx_error)
     }
-
-    // pub async fn fetch_all(
-    //     estimate_id: Uuid,
-    //     pg_pool: &PgPool,
-    // ) -> Result<Vec<EstimateAssembly>, AppError> {
-    //     sqlx::query_as!(
-    //         EstimateAssembly,
-    //         r#"
-    //         SELECT a.id, a.assembly, a.cost, ea.quantity
-    //         FROM assembly a
-    //         INNER JOIN estimate_assemblies ea on ea.assembly_id = a.id
-    //         INNER JOIN estimate e on e.id = ea.estimate_id
-    //         WHERE ea.estimate_id = $1
-    //         "#,
-    //         estimate_id
-    //     )
-    //     .fetch_all(pg_pool)
-    //     .await
-    //     .map_err(sqlx_error)
-    // }
 }
-
-// fn calculate_total_for_each_item(estimate_items: &[EstimateItem]) -> i32 {
-//     let mut item_totals = HashMap::new();
-//     // let mut item_costs = HashMap::new(); - or create a struct and store both
 //
-//     estimate_items.into_iter().for_each(|item| {
+// #[derive(Debug, Deserialize)]
+// struct EstimateItem {
+//     assembly_quantity: u32,
+//     item_id: Uuid,
+//     item_quantity: u32,
+//     price: f64,
+// }
+//
+// fn calculate_estimate_total(estimate_items: &[EstimateItem]) -> i32 {
+//     let mut item_totals = HashMap::new();
+//
+//     // use reduce here instead? nuke hashmap
+//     estimate_items.iter().for_each(|item| {
 //         let total = item.assembly_quantity * item.item_quantity;
 //
-//         *item_totals.entry(item.item).or_insert(0) += total;
-//
-//         // Also insert into item_costs
+//         *item_totals.entry(item.item_id).or_insert(0) += total;
 //     });
 //
 //     let id = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
 //     println!("total for item: {:?}", item_totals.get(&id).unwrap());
 //
+//     // item_totals.reduce -> total
 //     0
 // }
 //
 // #[cfg(test)]
 // mod tests {
-//     use crate::estimating::item::{calculate_total_for_each_item, EstimateItem};
+//     use crate::estimating::estimate_assembly::{calculate_estimate_total, EstimateItem};
 //     use uuid::Uuid;
 //
 //     fn estimate_items() -> Vec<EstimateItem> {
 //         let item1 = EstimateItem {
 //             assembly_quantity: 2,
-//             item: Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap(),
+//             item_id: Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap(),
 //             item_quantity: 5,
 //             price: 10.0,
 //         };
 //
 //         let item2 = EstimateItem {
 //             assembly_quantity: 2,
-//             item: Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap(),
+//             item_id: Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap(),
 //             item_quantity: 5,
 //             price: 10.0,
 //         };
-//
-//         // let item3 = EstimateItem {
-//         //     assembly_quantity: 0,
-//         //     item: Default::default(),
-//         //     item_quantity: 0,
-//         //     price: 0.0
-//         // };
 //
 //         vec![item1, item2]
 //     }
@@ -111,11 +93,11 @@ impl EstimateAssembly {
 //         let estimate_items = estimate_items();
 //
 //         assert_eq!(
-//             estimate_items[0].item,
+//             estimate_items[0].item_id,
 //             Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap()
 //         );
 //
-//         let total = calculate_total_for_each_item(&estimate_items);
+//         let total = calculate_estimate_total(&estimate_items);
 //
 //         assert_eq!(total, 200)
 //     }
