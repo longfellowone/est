@@ -1,5 +1,6 @@
 use crate::http::assembly::AssemblyQueries;
-use crate::http::estimate::resolvers::{EstimateMutations, EstimateQueries};
+use crate::http::estimate::mutations::EstimateMutations;
+use crate::http::estimate::queries::EstimateQueries;
 use crate::http::loaders::{
     AssemblyItemLoader, EstimateAssembliesLoader, EstimateLoader, ProjectLoader,
 };

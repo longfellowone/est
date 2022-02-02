@@ -1,58 +1,7 @@
-use crate::estimating::estimate::EstimateItem;
-use crate::estimating::estimate_assembly::EstimateAssembly;
-use crate::estimating::Estimate;
-use crate::http::loaders::EstimateAssembliesLoader;
-use async_graphql::dataloader::DataLoader;
-use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
+use crate::http::estimate::Estimate;
+use async_graphql::{Context, InputObject, Object, SimpleObject, ID};
 use sqlx::PgPool;
 use uuid::Uuid;
-
-#[Object]
-impl Estimate {
-    async fn id(&self) -> ID {
-        ID::from(self.id)
-    }
-
-    async fn estimate(&self) -> String {
-        self.estimate.to_string()
-    }
-
-    async fn cost(&self, ctx: &Context<'_>) -> Result<i64> {
-        let pg_pool = ctx.data_unchecked::<PgPool>();
-
-        let cost = EstimateItem::cost(self.id, pg_pool).await?;
-
-        Ok(cost)
-    }
-
-    async fn assemblies(&self, ctx: &Context<'_>) -> Result<Vec<EstimateAssembly>> {
-        let result = ctx
-            .data_unchecked::<DataLoader<EstimateAssembliesLoader>>()
-            .load_one(self.id)
-            .await?;
-
-        Ok(result.unwrap_or_default())
-    }
-}
-
-#[derive(Default)]
-pub struct EstimateQueries;
-
-#[Object]
-impl EstimateQueries {
-    async fn estimate(&self, ctx: &Context<'_>, id: ID) -> Result<Estimate> {
-        let pg_pool = ctx.data_unchecked::<PgPool>();
-        let id = Uuid::parse_str(&id)?;
-
-        let estimate = Estimate::fetch_one(id, pg_pool).await?;
-
-        // TODO: Maybe load assemblies here, pass to EstimateResolver
-        // (so cost can be calculated without loading from DB twice)
-        // How would this work with Vec<Estimate> ?
-
-        Ok(estimate)
-    }
-}
 
 #[derive(Default)]
 pub struct EstimateMutations;
@@ -63,7 +12,7 @@ impl EstimateMutations {
         &self,
         ctx: &Context<'_>,
         input: CreateEstimateInput,
-    ) -> Result<CreateEstimatePayload> {
+    ) -> async_graphql::Result<CreateEstimatePayload> {
         let pg_pool = ctx.data_unchecked::<PgPool>();
 
         let estimate = Estimate {
@@ -85,7 +34,7 @@ impl EstimateMutations {
         &self,
         ctx: &Context<'_>,
         input: DeleteEstimateInput,
-    ) -> Result<DeleteEstimatePayload> {
+    ) -> async_graphql::Result<DeleteEstimatePayload> {
         let pg_pool = ctx.data_unchecked::<PgPool>();
 
         let id = Uuid::parse_str(&input.id)?;
@@ -101,7 +50,7 @@ impl EstimateMutations {
         &self,
         ctx: &Context<'_>,
         input: AddAssemblyToEstimateInput,
-    ) -> Result<AddAssemblyToEstimatePayload> {
+    ) -> async_graphql::Result<AddAssemblyToEstimatePayload> {
         let pg_pool = ctx.data_unchecked::<PgPool>();
 
         let estimate_id = Uuid::parse_str(&input.estimate_id)?;

@@ -1,4 +1,5 @@
-use crate::estimating::{Estimate, Project};
+use crate::estimating::Project;
+use crate::http::estimate::Estimate;
 use crate::http::loaders::EstimateLoader;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};

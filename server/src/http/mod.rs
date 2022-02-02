@@ -10,7 +10,7 @@ use tower_http::trace::TraceLayer;
 
 mod assembly;
 mod assembly_item;
-mod estimate;
+pub mod estimate;
 mod estimate_assembly;
 mod graphql;
 mod loaders;
