@@ -1,7 +1,7 @@
 use crate::estimating::estimate::EstimateItem;
 use crate::estimating::estimate_assembly::EstimateAssembly;
 use crate::estimating::Estimate;
-use crate::graphql::loaders::EstimateAssembliesLoader;
+use crate::http::loaders::EstimateAssembliesLoader;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
 use sqlx::PgPool;
@@ -17,7 +17,7 @@ impl Estimate {
         self.estimate.to_string()
     }
 
-    async fn cost(&self, ctx: &Context<'_>) -> Result<i32> {
+    async fn cost(&self, ctx: &Context<'_>) -> Result<i64> {
         let pg_pool = ctx.data_unchecked::<PgPool>();
 
         let cost = EstimateItem::cost(self.id, pg_pool).await?;
@@ -45,6 +45,10 @@ impl EstimateQueries {
         let id = Uuid::parse_str(&id)?;
 
         let estimate = Estimate::fetch_one(id, pg_pool).await?;
+
+        // TODO: Maybe load assemblies here, pass to EstimateResolver
+        // (so cost can be calculated without loading from DB twice)
+        // How would this work with Vec<Estimate> ?
 
         Ok(estimate)
     }

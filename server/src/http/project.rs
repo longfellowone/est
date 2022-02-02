@@ -1,5 +1,5 @@
 use crate::estimating::{Estimate, Project};
-use crate::graphql::loaders::EstimateLoader;
+use crate::http::loaders::EstimateLoader;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
 use sqlx::PgPool;

@@ -1,24 +1,20 @@
-use crate::graphql::assembly::AssemblyQueries;
-use crate::graphql::estimate::{EstimateMutations, EstimateQueries};
-use crate::graphql::loaders::{
+use crate::http::assembly::AssemblyQueries;
+use crate::http::estimate::resolvers::{EstimateMutations, EstimateQueries};
+use crate::http::loaders::{
     AssemblyItemLoader, EstimateAssembliesLoader, EstimateLoader, ProjectLoader,
 };
-use crate::graphql::project::{ProjectMutations, ProjectQueries};
-use crate::IntoResponse;
+use crate::http::project::{ProjectMutations, ProjectQueries};
 use async_graphql::dataloader::DataLoader;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptySubscription, MergedObject, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::extract::Extension;
 use axum::response;
+use axum::response::IntoResponse;
 use sqlx::PgPool;
 
-mod assembly;
-pub mod assembly_item;
-mod estimate;
-mod estimate_assembly;
-mod loaders;
-mod project;
+// Lookahead example
+// https://cs.github.com/cthit/hubbit2/blob/40cd6541c9b9daa6c65198fe6a763b5d794e8dc0/backend/src/schema/stats.rs#L420
 
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(ProjectQueries, EstimateQueries, AssemblyQueries);
@@ -28,7 +24,7 @@ pub struct MutationRoot(ProjectMutations, EstimateMutations);
 
 pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
-pub async fn schema(pg_pool: PgPool) -> GraphqlSchema {
+pub fn schema(pg_pool: PgPool) -> GraphqlSchema {
     let project_loader = DataLoader::new(ProjectLoader::new(pg_pool.clone()), tokio::spawn);
     let estimates_loader = DataLoader::new(EstimateLoader::new(pg_pool.clone()), tokio::spawn);
     let assembly_items_loader =

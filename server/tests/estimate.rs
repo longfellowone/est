@@ -115,7 +115,7 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let result = Estimate::fetch_one(id, &app.pg_pool).await;
+        let result = Estimate::fetch_one(id, &app.pool).await;
 
         // Todo: Make this check better
         assert!(result.is_ok())
@@ -153,7 +153,7 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let result = Estimate::fetch_one(id, &app.pg_pool).await;
+        let result = Estimate::fetch_one(id, &app.pool).await;
 
         assert!(matches!(result.err().unwrap(), AppError::RecordNotFound))
     }

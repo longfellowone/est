@@ -136,7 +136,7 @@ pub struct EstimateItem {
 }
 
 impl EstimateItem {
-    pub async fn cost(estimate_id: Uuid, pg_pool: &PgPool) -> Result<i32, AppError> {
+    pub async fn cost(estimate_id: Uuid, pg_pool: &PgPool) -> Result<i64, AppError> {
         let estimate_items = sqlx::query_as!(
             EstimateItem,
             r#"
@@ -161,9 +161,9 @@ impl EstimateItem {
     }
 }
 
-fn calculate_estimate_total(estimate_items: &[EstimateItem]) -> i32 {
+fn calculate_estimate_total(estimate_items: &[EstimateItem]) -> i64 {
     estimate_items.into_iter().fold(0, |total, item| {
-        total + item.assembly_quantity * item.item_quantity * item.item_cost
+        total + (item.assembly_quantity * item.item_quantity * item.item_cost) as i64
     })
 }
 

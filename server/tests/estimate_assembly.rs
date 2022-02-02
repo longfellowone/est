@@ -36,19 +36,19 @@ mod tests {
                     {
                         "id": "00000000-0000-0000-0000-000000000001",
                         "assembly": "Assembly 1",
-                        "cost": 100,
+                        "cost": 10000,
                         "quantity": 10
                     },
                     {
                         "id": "00000000-0000-0000-0000-000000000002",
                         "assembly": "Assembly 2",
-                        "cost": 200,
+                        "cost": 13000,
                         "quantity": 20,
                     },
                     {
                         "id": "00000000-0000-0000-0000-000000000003",
                         "assembly": "Assembly 3",
-                        "cost": 300, // Check that rounding worked from 299.995
+                        "cost": 0, // Check that rounding worked from 299.995
                         "quantity": 30,
                     },
                 ]
@@ -112,7 +112,7 @@ mod tests {
                         {
                             "id": assembly_id,
                             "assembly": "Assembly 3",
-                            "cost": 300,
+                            "cost": 0,
                             "quantity": 0,
                         }
                     ]
@@ -122,7 +122,7 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let result = EstimateAssembly::fetch_in_estimate(&[estimate_id], &app.pg_pool).await;
+        let result = EstimateAssembly::fetch_in_estimate(&[estimate_id], &app.pool).await;
 
         // Todo: Make this check better
         assert!(result.is_ok());
