@@ -6,7 +6,7 @@ mod tests {
     use gql_client::Client;
     use serde_json::Value;
     use server::error::AppError;
-    use server::estimating::Project;
+    use server::http::project::Project;
     use uuid::Uuid;
 
     #[tokio::test]
@@ -103,7 +103,7 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let result = Project::fetch_one(id, &app.pg_pool).await;
+        let result = Project::fetch_one(id, &app.pool).await;
 
         // Todo: Make this check better
         assert!(result.is_ok())
@@ -141,7 +141,7 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let result = Project::fetch_one(id, &app.pg_pool).await;
+        let result = Project::fetch_one(id, &app.pool).await;
 
         assert!(matches!(result.err().unwrap(), AppError::RecordNotFound))
     }

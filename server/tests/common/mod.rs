@@ -1,17 +1,14 @@
 use async_graphql::ID;
 use serde::Serialize;
 use server::config::{Configuration, Http, Postgres};
-use server::App;
+use server::http::App;
 use sqlx::{Executor, PgPool};
 use uuid::Uuid;
 
 pub struct TestApp {
     pub addr: String,
-    pub pg_pool: PgPool,
+    pub pool: PgPool,
 }
-
-// schema is private
-// TODO: add .execute() method to TestApp
 
 impl TestApp {
     pub async fn new() -> Self {
@@ -39,21 +36,23 @@ impl TestApp {
             .await
             .ok();
 
-        let pg_pool = config.postgres.pool().await;
+        let pool = config.postgres.pool().await;
+
+        sqlx::migrate!().run(&pool).await.unwrap();
 
         // Run migrations to insert test data
         // sqlx::migrate!("./tests/migrations")
-        //     .run(&pg_pool)
+        //     .run(&pool)
         //     .await
         //     .unwrap();
 
-        let app = App::new(config).await;
+        let app = App::new(config, pool.clone());
 
         let addr = format!("http://{}", app.addr());
 
         tokio::spawn(async move { app.run().await });
 
-        TestApp { addr, pg_pool }
+        TestApp { addr, pool }
     }
 }
 

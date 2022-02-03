@@ -1,4 +1,4 @@
-use crate::estimating::assembly_item::AssemblyItem;
+use crate::http::assembly::items::AssemblyItem;
 use async_graphql::dataloader::Loader;
 use async_graphql::FieldError;
 use async_trait::async_trait;
@@ -10,8 +10,8 @@ use uuid::Uuid;
 pub struct AssemblyItemLoader(PgPool);
 
 impl AssemblyItemLoader {
-    pub(crate) fn new(pg_pool: PgPool) -> Self {
-        Self(pg_pool)
+    pub(crate) fn new(pool: PgPool) -> Self {
+        Self(pool)
     }
 }
 

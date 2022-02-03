@@ -1,91 +1,102 @@
 use crate::error::{sqlx_error, AppError};
-use serde::Deserialize;
 use sqlx::PgPool;
 use uuid::Uuid;
 
+pub mod assemblies;
+pub mod loader;
+pub mod mutations;
+pub mod queries;
+pub mod resolver;
+
 #[derive(Debug, Clone)]
 pub struct Estimate {
-    pub id: Uuid,
+    pub estimate_id: Uuid,
     pub project_id: Uuid,
     pub estimate: String,
 }
 
 impl Estimate {
+    #[allow(dead_code)]
     pub async fn fetch_all_for_project(
         project_id: Uuid,
-        pg_pool: &PgPool,
+        pool: &PgPool,
     ) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Estimate,
+            // language=PostgreSQL
             r#"
-            SELECT id, project_id, estimate
-            FROM estimate
-            WHERE project_id = $1
+            select estimate_id, project_id, estimate
+            from estimate
+            where project_id = $1
             "#,
             project_id
         )
-        .fetch_all(pg_pool)
+        .fetch_all(pool)
         .await
         .map_err(sqlx_error)
     }
 
-    pub async fn fetch_one(id: Uuid, pg_pool: &PgPool) -> Result<Self, AppError> {
+    pub async fn fetch_one(id: Uuid, pool: &PgPool) -> Result<Self, AppError> {
         sqlx::query_as!(
             Estimate,
+            // language=PostgreSQL
             r#"
-            SELECT id, project_id, estimate
-            FROM estimate
-            WHERE id = $1
+            select estimate_id, project_id, estimate
+            from estimate
+            where estimate_id = $1
             "#,
             id
         )
-        .fetch_one(pg_pool)
+        .fetch_one(pool)
         .await
         .map_err(sqlx_error)
     }
 
-    pub async fn fetch_in_project(ids: &[Uuid], pg_pool: &PgPool) -> Result<Vec<Self>, AppError> {
+    pub async fn fetch_in_project(ids: &[Uuid], pool: &PgPool) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Estimate,
+            // language=PostgreSQL
             r#"
-            SELECT id, project_id, estimate
-            FROM estimate
-            WHERE project_id = ANY($1)
+            select estimate_id, project_id, estimate
+            from estimate
+            where project_id = any($1)
             "#,
             ids,
         )
-        .fetch_all(pg_pool)
+        .fetch_all(pool)
         .await
         .map_err(sqlx_error)
     }
 
-    pub async fn create(estimate: Estimate, pg_pool: &PgPool) -> Result<Self, AppError> {
+    pub async fn create(estimate: Estimate, pool: &PgPool) -> Result<Self, AppError> {
         sqlx::query_as!(
             Estimate,
+            // language=PostgreSQL
             r#"
-            INSERT INTO estimate (id, project_id, estimate) 
-            VALUES ($1, $2, $3)
-            RETURNING id, project_id, estimate
+            insert into estimate (estimate_id, project_id, estimate) 
+            values ($1, $2, $3)
+            returning estimate_id, project_id, estimate
             "#,
-            estimate.id,
+            estimate.estimate_id,
             estimate.project_id,
             estimate.estimate,
         )
-        .fetch_one(pg_pool)
+        .fetch_one(pool)
         .await
         .map_err(sqlx_error)
     }
 
-    pub async fn delete(id: Uuid, pg_pool: &PgPool) -> Result<Uuid, AppError> {
+    pub async fn delete(id: Uuid, pool: &PgPool) -> Result<Uuid, AppError> {
         // TODO: Change to soft delete
         let result = sqlx::query!(
+            // language=PostgreSQL
             r#"
-            DELETE FROM estimate 
-            WHERE id = $1
+            delete from estimate 
+            where estimate_id = $1
             "#,
             id
         )
-        .execute(pg_pool)
+        .execute(pool)
         .await
         .map_err(sqlx_error);
 
@@ -102,33 +113,34 @@ impl Estimate {
     pub async fn add_assembly(
         estimate_id: Uuid,
         assembly_id: Uuid,
-        pg_pool: &PgPool,
+        pool: &PgPool,
     ) -> Result<Self, AppError> {
         sqlx::query_as!(
             Estimate,
+            // language=PostgreSQL
             r#"
-            WITH insert AS (
-                INSERT INTO estimate_assemblies (estimate_id, assembly_id, quantity)
-                VALUES ($1, $2, $3)
-                RETURNING estimate_id
+            with insert as (
+                insert into estimate_assemblies (estimate_id, assembly_id, quantity)
+                values ($1, $2, $3)
+                returning estimate_id
             )
-            SELECT e.id as "id!",
+            select e.estimate_id as "estimate_id!",
                    e.project_id as "project_id!",
                    e.estimate as "estimate!"
-            FROM estimate e
-            INNER JOIN insert i on i.estimate_id = e.id
+            from estimate e
+            inner join insert i using (estimate_id)
             "#,
             estimate_id,
             assembly_id,
             0
         )
-        .fetch_one(pg_pool)
+        .fetch_one(pool)
         .await
         .map_err(sqlx_error)
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, serde::Deserialize)]
 pub struct EstimateItem {
     assembly_quantity: i32,
     item_quantity: i32,
@@ -136,22 +148,23 @@ pub struct EstimateItem {
 }
 
 impl EstimateItem {
-    pub async fn cost(estimate_id: Uuid, pg_pool: &PgPool) -> Result<i32, AppError> {
+    pub async fn cost(estimate_id: Uuid, pool: &PgPool) -> Result<i64, AppError> {
         let estimate_items = sqlx::query_as!(
             EstimateItem,
+            // language=PostgreSQL
             r#"
-            SELECT ea.quantity as "assembly_quantity",
+            select ea.quantity as "assembly_quantity",
                    ai.quantity as "item_quantity",
                    i.cost as "item_cost"
-            FROM estimate e
-            INNER JOIN estimate_assemblies ea on ea.estimate_id = e.id
-            INNER JOIN assembly_items ai on ai.assembly_id = ea.assembly_id
-            INNER JOIN item i on i.id = ai.item_id
-            WHERE e.id = $1
+            from estimate e
+            inner join estimate_assemblies ea using (estimate_id)
+            inner join assembly_items ai using (assembly_id)
+            inner join item i using (item_id)
+            where e.estimate_id = $1
             "#,
             estimate_id
         )
-        .fetch_all(pg_pool)
+        .fetch_all(pool)
         .await
         .map_err(sqlx_error)?;
 
@@ -161,15 +174,15 @@ impl EstimateItem {
     }
 }
 
-fn calculate_estimate_total(estimate_items: &[EstimateItem]) -> i32 {
+fn calculate_estimate_total(estimate_items: &[EstimateItem]) -> i64 {
     estimate_items.into_iter().fold(0, |total, item| {
-        total + item.assembly_quantity * item.item_quantity * item.item_cost
+        total + (item.assembly_quantity * item.item_quantity * item.item_cost) as i64
     })
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::estimating::estimate::{calculate_estimate_total, EstimateItem};
+    use crate::http::estimate::{calculate_estimate_total, EstimateItem};
 
     fn estimate_items() -> Vec<EstimateItem> {
         let item1 = EstimateItem {
