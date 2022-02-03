@@ -42,7 +42,7 @@ impl TestApp {
 
         // Run migrations to insert test data
         // sqlx::migrate!("./tests/migrations")
-        //     .run(&pg_pool)
+        //     .run(&pool)
         //     .await
         //     .unwrap();
 

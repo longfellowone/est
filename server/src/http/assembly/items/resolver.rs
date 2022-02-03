@@ -1,10 +1,10 @@
-use crate::estimating::assembly_item::AssemblyItem;
+use crate::http::assembly::items::AssemblyItem;
 use async_graphql::{Object, ID};
 
 #[Object]
 impl AssemblyItem {
     async fn id(&self) -> ID {
-        ID::from(self.id)
+        ID::from(self.item_id)
     }
 
     async fn item(&self) -> String {

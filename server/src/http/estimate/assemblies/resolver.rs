@@ -1,6 +1,6 @@
-use crate::estimating::assembly_item::AssemblyItem;
-use crate::estimating::EstimateAssembly;
-use crate::http::loaders::AssemblyItemLoader;
+use crate::http::assembly::items::loader::AssemblyItemLoader;
+use crate::http::assembly::items::AssemblyItem;
+use crate::http::estimate::assemblies::EstimateAssembly;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
@@ -8,15 +8,15 @@ use sqlx::PgPool;
 #[Object]
 impl EstimateAssembly {
     async fn id(&self) -> ID {
-        ID::from(self.id)
+        ID::from(self.assembly_id)
     }
 
     async fn assembly(&self) -> String {
         self.assembly.to_string()
     }
 
-    async fn cost(&self, ctx: &Context<'_>) -> Result<i32> {
-        let pg_pool = ctx.data_unchecked::<PgPool>();
+    async fn cost(&self, ctx: &Context<'_>) -> async_graphql::Result<i32> {
+        let pool = ctx.data_unchecked::<PgPool>();
 
         // TODO: This needs to be loader
         let items = sqlx::query!(
@@ -24,12 +24,12 @@ impl EstimateAssembly {
             r#"
             select ai.quantity, i.cost
             from item i
-            inner join assembly_items ai on ai.item_id = i.id
+            inner join assembly_items ai using (item_id)
             where ai.assembly_id = $1
             "#,
-            self.id
+            self.assembly_id
         )
-        .fetch_all(pg_pool)
+        .fetch_all(pool)
         .await?;
 
         let total = items
@@ -46,7 +46,7 @@ impl EstimateAssembly {
     async fn items(&self, ctx: &Context<'_>) -> Result<Vec<AssemblyItem>> {
         let result = ctx
             .data_unchecked::<DataLoader<AssemblyItemLoader>>()
-            .load_one(self.id)
+            .load_one(self.assembly_id)
             .await?;
 
         Ok(result.unwrap_or_default())

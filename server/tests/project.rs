@@ -6,7 +6,7 @@ mod tests {
     use gql_client::Client;
     use serde_json::Value;
     use server::error::AppError;
-    use server::estimating::Project;
+    use server::http::project::Project;
     use uuid::Uuid;
 
     #[tokio::test]

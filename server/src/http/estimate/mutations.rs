@@ -13,15 +13,15 @@ impl EstimateMutations {
         ctx: &Context<'_>,
         input: CreateEstimateInput,
     ) -> async_graphql::Result<CreateEstimatePayload> {
-        let pg_pool = ctx.data_unchecked::<PgPool>();
+        let pool = ctx.data_unchecked::<PgPool>();
 
         let estimate = Estimate {
-            id: Uuid::new_v4(),
+            estimate_id: Uuid::new_v4(),
             project_id: Uuid::parse_str(&input.project_id)?,
             estimate: input.estimate,
         };
 
-        let estimate = Estimate::create(estimate, pg_pool).await?;
+        let estimate = Estimate::create(estimate, pool).await?;
 
         let payload = CreateEstimatePayload {
             estimate: Some(estimate),
@@ -35,11 +35,11 @@ impl EstimateMutations {
         ctx: &Context<'_>,
         input: DeleteEstimateInput,
     ) -> async_graphql::Result<DeleteEstimatePayload> {
-        let pg_pool = ctx.data_unchecked::<PgPool>();
+        let pool = ctx.data_unchecked::<PgPool>();
 
         let id = Uuid::parse_str(&input.id)?;
 
-        let id = Estimate::delete(id, pg_pool).await?;
+        let id = Estimate::delete(id, pool).await?;
 
         let payload = DeleteEstimatePayload { id: id.into() };
 
@@ -51,12 +51,12 @@ impl EstimateMutations {
         ctx: &Context<'_>,
         input: AddAssemblyToEstimateInput,
     ) -> async_graphql::Result<AddAssemblyToEstimatePayload> {
-        let pg_pool = ctx.data_unchecked::<PgPool>();
+        let pool = ctx.data_unchecked::<PgPool>();
 
         let estimate_id = Uuid::parse_str(&input.estimate_id)?;
         let assembly_id = Uuid::parse_str(&input.assembly_id)?;
 
-        let estimate = Estimate::add_assembly(estimate_id, assembly_id, pg_pool).await?;
+        let estimate = Estimate::add_assembly(estimate_id, assembly_id, pool).await?;
 
         let payload = AddAssemblyToEstimatePayload {
             estimate: Some(estimate),

@@ -10,8 +10,8 @@ use uuid::Uuid;
 pub struct EstimateLoader(PgPool);
 
 impl EstimateLoader {
-    pub(crate) fn new(pg_pool: PgPool) -> Self {
-        Self(pg_pool)
+    pub(crate) fn new(pool: PgPool) -> Self {
+        Self(pool)
     }
 }
 

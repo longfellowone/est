@@ -1,42 +1,42 @@
 CREATE TABLE project
 (
-    id      uuid PRIMARY KEY,
-    project text NOT NULL
+    project_id uuid PRIMARY KEY,
+    project    text NOT NULL
 );
 
-INSERT INTO project (id, project)
+INSERT INTO project (project_id, project)
 VALUES ('00000000-0000-0000-0000-000000000001', 'Project 1'),
        ('00000000-0000-0000-0000-000000000002', 'Project 2');
 
 -- TODO: Remove ON DELETE CASCADE and change to soft delete
 CREATE TABLE estimate
 (
-    id         uuid PRIMARY KEY,
-    project_id uuid NOT NULL REFERENCES project (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    estimate_id         uuid PRIMARY KEY,
+    project_id uuid NOT NULL REFERENCES project (project_id) ON UPDATE CASCADE ON DELETE CASCADE,
     estimate   text NOT NULL
 );
 
-INSERT INTO estimate (id, project_id, estimate)
+INSERT INTO estimate (estimate_id, project_id, estimate)
 VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Estimate 1'),
        ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Estimate 2'),
        ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002', 'Estimate 3');
 
 CREATE TABLE assembly
 (
-    id       uuid PRIMARY KEY,
-    assembly text NOT NULL,
-    cost     int  NOT NULL
+    assembly_id uuid PRIMARY KEY,
+    assembly    text NOT NULL,
+    cost        int  NOT NULL
 );
 
-INSERT INTO assembly (id, assembly, cost)
+INSERT INTO assembly (assembly_id, assembly, cost)
 VALUES ('00000000-0000-0000-0000-000000000001', 'Assembly 1', 100),
        ('00000000-0000-0000-0000-000000000002', 'Assembly 2', 200),
        ('00000000-0000-0000-0000-000000000003', 'Assembly 3', 300);
 
 CREATE TABLE estimate_assemblies
 (
-    estimate_id uuid REFERENCES estimate (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    assembly_id uuid REFERENCES assembly (id) ON UPDATE CASCADE,
+    estimate_id uuid REFERENCES estimate (estimate_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    assembly_id uuid REFERENCES assembly (assembly_id) ON UPDATE CASCADE,
     quantity    int NOT NULL,
     PRIMARY KEY (estimate_id, assembly_id)
 );
@@ -52,20 +52,20 @@ VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000
 
 CREATE TABLE item
 (
-    id   uuid PRIMARY KEY,
+    item_id   uuid PRIMARY KEY,
     item text NOT NULL,
     cost int  NOT NULL
 );
 
-INSERT INTO item (id, item, cost)
+INSERT INTO item (item_id, item, cost)
 VALUES ('00000000-0000-0000-0000-000000000001', 'Item 1', 10),
        ('00000000-0000-0000-0000-000000000002', 'Item 2', 20),
        ('00000000-0000-0000-0000-000000000003', 'Item 3', 30);
 
 CREATE TABLE assembly_items
 (
-    assembly_id uuid REFERENCES assembly (id) ON UPDATE CASCADE,
-    item_id     uuid REFERENCES item (id) ON UPDATE CASCADE,
+    assembly_id uuid REFERENCES assembly (assembly_id) ON UPDATE CASCADE,
+    item_id     uuid REFERENCES item (item_id) ON UPDATE CASCADE,
     quantity    int NOT NULL,
     PRIMARY KEY (assembly_id, item_id)
 );
