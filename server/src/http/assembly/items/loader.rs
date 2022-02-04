@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub struct AssemblyItemLoader(PgPool);
 
 impl AssemblyItemLoader {
-    pub(crate) fn new(pool: PgPool) -> Self {
+    pub fn new(pool: PgPool) -> Self {
         Self(pool)
     }
 }

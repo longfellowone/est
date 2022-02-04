@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub struct EstimateAssembliesLoader(PgPool);
 
 impl EstimateAssembliesLoader {
-    pub(crate) fn new(pool: PgPool) -> Self {
+    pub fn new(pool: PgPool) -> Self {
         Self(pool)
     }
 }

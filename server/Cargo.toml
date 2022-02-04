@@ -6,22 +6,22 @@ edition = "2021"
 
 [dependencies]
 thiserror = "1.0.30"
-serde = { version = "1.0.132", features = ["derive"] }
-serde_json = "1.0.74"
-sqlx = { version = "0.5.9", features = ["runtime-tokio-rustls", "postgres", "uuid", "migrate", "macros", "offline", "chrono", "decimal"] }
+serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.78"
+sqlx = { version = "0.5.10", features = ["runtime-tokio-rustls", "postgres", "uuid", "migrate", "macros", "offline", "chrono", "decimal"] }
 uuid = { version = "0.8.2", features = ["v4", "serde"] }
 chrono = "0.4.19"
-axum = { version = "0.4.3", features = ["http2"] }
+axum = { version = "0.4.5", features = ["http2"] }
 hyper = { version = "0.14.16", features = ["full"] }
-tokio = { version = "1.15.0", features = ["full"] }
-tower = { version = "0.4.11" }
-tower-http = { version = "0.2.0", features = ["trace", "add-extension", "cors"] }
+tokio = { version = "1.16.1", features = ["full"] }
+tower = "0.4.11"
+tower-http = { version = "0.2.1", features = ["trace", "add-extension", "cors"] }
 tracing = "0.1.29"
-tracing-subscriber = { version = "0.3.4", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.7", features = ["env-filter"] }
 #env_logger = "0.9.0"
 #log = "0.4.14"
-async-graphql = { version = "3.0.21", features = ["dataloader", "decimal"] }
-async-graphql-axum = "3.0.21"
+async-graphql = { version = "3.0.28", features = ["dataloader", "decimal"] }
+async-graphql-axum = "3.0.28"
 async-trait = "0.1.52"
 itertools = "0.10.3"
 
