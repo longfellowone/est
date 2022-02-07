@@ -61,6 +61,24 @@ impl Project {
         .map_err(sqlx_error)
     }
 
+    pub async fn update(project: Project, pool: &PgPool) -> Result<Self, AppError> {
+        sqlx::query_as!(
+            Project,
+            // language=PostgreSQL
+            r#"
+            update project
+            set project = coalesce($2, project.project)
+            where project_id = $1
+            returning project_id, project
+            "#,
+            project.project_id,
+            project.project,
+        )
+        .fetch_one(pool)
+        .await
+        .map_err(sqlx_error)
+    }
+
     pub async fn delete(id: Uuid, pool: &PgPool) -> Result<Uuid, AppError> {
         // TODO: Change to soft delete
         let result = sqlx::query!(

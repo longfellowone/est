@@ -63,16 +63,32 @@ mod tests {
         let app = TestApp::new().await;
         let client = Client::new(&app.addr);
 
+        #[derive(Serialize)]
+        struct Vars {
+            input: AddAssemblyToEstimateInput,
+        }
+
+        #[derive(Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct AddAssemblyToEstimateInput {
+            estimate_id: ID,
+            assembly_id: ID,
+        }
+
         let estimate_id = Uuid::parse_str("00000000-0000-0000-0000-000000000003").unwrap();
         let assembly_id = Uuid::parse_str("00000000-0000-0000-0000-000000000003").unwrap();
 
+        let vars = Vars {
+            input: AddAssemblyToEstimateInput {
+                estimate_id: ID::from(estimate_id),
+                assembly_id: ID::from(assembly_id),
+            },
+        };
+
         let query = r#"
-            mutation AddAssemblyToEstimate($estimateId: ID!, $assemblyId: ID!) {
+            mutation AddAssemblyToEstimate($input: AddAssemblyToEstimateInput!) {
                 addAssemblyToEstimate(
-                    input: {
-                        estimateId: $estimateId,
-                        assemblyId: $assemblyId
-                    }
+                    input: $input
                 ) {
                     estimate {
                         id
@@ -86,18 +102,6 @@ mod tests {
                 }
             }
         "#;
-
-        #[derive(Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Vars {
-            estimate_id: ID,
-            assembly_id: ID,
-        }
-
-        let vars = Vars {
-            estimate_id: estimate_id.into(),
-            assembly_id: assembly_id.into(),
-        };
 
         let left = client
             .query_with_vars::<Value, Vars>(query, vars)

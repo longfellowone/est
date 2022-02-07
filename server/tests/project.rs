@@ -3,6 +3,7 @@ mod common;
 #[cfg(test)]
 mod tests {
     use crate::common::{TestApp, Vars};
+    use async_graphql::ID;
     use gql_client::Client;
     use serde_json::Value;
     use server::error::AppError;
@@ -114,8 +115,6 @@ mod tests {
         let app = TestApp::new().await;
         let client = Client::new(&app.addr);
 
-        let id = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
-
         let query = r#"
             mutation deleteProject($id: ID!) {
                 deleteProject(
@@ -127,6 +126,8 @@ mod tests {
                 }
             }
         "#;
+
+        let id = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
 
         let left = client
             .query_with_vars::<Value, Vars>(query, Vars { id: id.into() })
@@ -144,5 +145,66 @@ mod tests {
         let result = Project::fetch_one(id, &app.pool).await;
 
         assert!(matches!(result.err().unwrap(), AppError::RecordNotFound))
+    }
+
+    #[tokio::test]
+    async fn test_update_project() {
+        let app = TestApp::new().await;
+        let client = Client::new(&app.addr);
+
+        #[derive(serde::Serialize)]
+        struct Vars {
+            input: UpdateProjectInput,
+        }
+
+        #[derive(serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct UpdateProjectInput {
+            id: ID,
+            project: String,
+        }
+
+        let id = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
+        let project = "Project 5";
+
+        let vars = Vars {
+            input: UpdateProjectInput {
+                id: ID::from(id),
+                project: project.to_string(),
+            },
+        };
+
+        let query = r#"
+            mutation updateProject($input: UpdateProjectInput!) {
+                updateProject(
+                    input: $input
+                ) {
+                    project {
+                        id
+                        project
+                    }
+                }
+            }
+        "#;
+
+        let left = client
+            .query_with_vars::<Value, Vars>(query, vars)
+            .await
+            .unwrap();
+
+        let right = serde_json::json!({
+            "updateProject": {
+                "project": {
+                    "id": id,
+                    "project": project,
+                }
+            }
+        });
+
+        assert_eq!(left, right);
+
+        let result = Project::fetch_one(id, &app.pool).await.unwrap();
+
+        assert_eq!(result.project, project)
     }
 }

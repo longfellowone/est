@@ -44,6 +44,27 @@ impl ProjectMutations {
 
         Ok(payload)
     }
+
+    async fn update_project(
+        &self,
+        ctx: &Context<'_>,
+        input: UpdateProjectInput,
+    ) -> Result<UpdateProjectPayload> {
+        let pool = ctx.data_unchecked::<PgPool>();
+
+        let project = Project {
+            project_id: Uuid::parse_str(&input.id)?,
+            project: input.project,
+        };
+
+        let project = Project::update(project, pool).await?;
+
+        let payload = UpdateProjectPayload {
+            project: Some(project),
+        };
+
+        Ok(payload)
+    }
 }
 
 #[derive(InputObject)]
@@ -64,4 +85,15 @@ pub struct DeleteProjectInput {
 #[derive(SimpleObject)]
 pub struct DeleteProjectPayload {
     pub id: ID,
+}
+
+#[derive(InputObject)]
+pub struct UpdateProjectInput {
+    pub id: ID,
+    pub project: String,
+}
+
+#[derive(SimpleObject)]
+pub struct UpdateProjectPayload {
+    project: Option<Project>,
 }

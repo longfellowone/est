@@ -1,5 +1,8 @@
 mod common;
 
+// TODO: For update assembly item, $id is assembly ID, $input is item
+// updateAsssemblyItem($id: ID!, $input: UpdateAsssemblyItemInput!)
+
 #[cfg(test)]
 mod tests {
     use crate::common::TestApp;
