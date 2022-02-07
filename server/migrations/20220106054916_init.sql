@@ -11,9 +11,9 @@ VALUES ('00000000-0000-0000-0000-000000000001', 'Project 1'),
 -- TODO: Remove ON DELETE CASCADE and change to soft delete
 CREATE TABLE estimate
 (
-    estimate_id         uuid PRIMARY KEY,
-    project_id uuid NOT NULL REFERENCES project (project_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    estimate   text NOT NULL
+    estimate_id uuid PRIMARY KEY,
+    project_id  uuid NOT NULL REFERENCES project (project_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    estimate    text NOT NULL
 );
 
 INSERT INTO estimate (estimate_id, project_id, estimate)
@@ -52,9 +52,9 @@ VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000
 
 CREATE TABLE item
 (
-    item_id   uuid PRIMARY KEY,
-    item text NOT NULL,
-    cost int  NOT NULL
+    item_id uuid PRIMARY KEY,
+    item    text NOT NULL,
+    cost    int  NOT NULL
 );
 
 INSERT INTO item (item_id, item, cost)

@@ -9,20 +9,20 @@ pub mod queries;
 pub mod resolver;
 
 #[derive(Debug, Clone)]
-pub struct Estimate {
+pub struct EstimateResolver {
     pub estimate_id: Uuid,
     pub project_id: Uuid,
     pub estimate: String,
 }
 
-impl Estimate {
+impl EstimateResolver {
     #[allow(dead_code)]
     pub async fn fetch_all_for_project(
         project_id: Uuid,
         pool: &PgPool,
     ) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
-            Estimate,
+            EstimateResolver,
             // language=PostgreSQL
             r#"
             select estimate_id, project_id, estimate
@@ -38,7 +38,7 @@ impl Estimate {
 
     pub async fn fetch_one(id: Uuid, pool: &PgPool) -> Result<Self, AppError> {
         sqlx::query_as!(
-            Estimate,
+            EstimateResolver,
             // language=PostgreSQL
             r#"
             select estimate_id, project_id, estimate
@@ -54,7 +54,7 @@ impl Estimate {
 
     pub async fn fetch_in_project(ids: &[Uuid], pool: &PgPool) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
-            Estimate,
+            EstimateResolver,
             // language=PostgreSQL
             r#"
             select estimate_id, project_id, estimate
@@ -68,9 +68,9 @@ impl Estimate {
         .map_err(sqlx_error)
     }
 
-    pub async fn create(estimate: Estimate, pool: &PgPool) -> Result<Self, AppError> {
+    pub async fn create(estimate: EstimateResolver, pool: &PgPool) -> Result<Self, AppError> {
         sqlx::query_as!(
-            Estimate,
+            EstimateResolver,
             // language=PostgreSQL
             r#"
             insert into estimate (estimate_id, project_id, estimate) 
@@ -116,7 +116,7 @@ impl Estimate {
         pool: &PgPool,
     ) -> Result<Self, AppError> {
         sqlx::query_as!(
-            Estimate,
+            EstimateResolver,
             // language=PostgreSQL
             r#"
             with insert as (

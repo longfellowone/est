@@ -1,4 +1,4 @@
-use crate::http::estimate::Estimate;
+use crate::http::estimate::EstimateResolver;
 use async_graphql::{Context, InputObject, Object, SimpleObject, ID};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -15,13 +15,13 @@ impl EstimateMutations {
     ) -> async_graphql::Result<CreateEstimatePayload> {
         let pool = ctx.data_unchecked::<PgPool>();
 
-        let estimate = Estimate {
+        let estimate = EstimateResolver {
             estimate_id: Uuid::new_v4(),
             project_id: Uuid::parse_str(&input.project_id)?,
             estimate: input.estimate,
         };
 
-        let estimate = Estimate::create(estimate, pool).await?;
+        let estimate = EstimateResolver::create(estimate, pool).await?;
 
         let payload = CreateEstimatePayload {
             estimate: Some(estimate),
@@ -39,7 +39,7 @@ impl EstimateMutations {
 
         let id = Uuid::parse_str(&input.id)?;
 
-        let id = Estimate::delete(id, pool).await?;
+        let id = EstimateResolver::delete(id, pool).await?;
 
         let payload = DeleteEstimatePayload { id: id.into() };
 
@@ -56,7 +56,7 @@ impl EstimateMutations {
         let estimate_id = Uuid::parse_str(&input.estimate_id)?;
         let assembly_id = Uuid::parse_str(&input.assembly_id)?;
 
-        let estimate = Estimate::add_assembly(estimate_id, assembly_id, pool).await?;
+        let estimate = EstimateResolver::add_assembly(estimate_id, assembly_id, pool).await?;
 
         let payload = AddAssemblyToEstimatePayload {
             estimate: Some(estimate),
@@ -74,7 +74,7 @@ pub struct CreateEstimateInput {
 
 #[derive(SimpleObject)]
 pub struct CreateEstimatePayload {
-    pub estimate: Option<Estimate>,
+    pub estimate: Option<EstimateResolver>,
 }
 
 #[derive(InputObject)]
@@ -95,5 +95,5 @@ pub struct AddAssemblyToEstimateInput {
 
 #[derive(SimpleObject)]
 pub struct AddAssemblyToEstimatePayload {
-    pub estimate: Option<Estimate>,
+    pub estimate: Option<EstimateResolver>,
 }

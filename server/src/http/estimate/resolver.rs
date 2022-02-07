@@ -1,13 +1,13 @@
 use crate::http::estimate::assemblies::loader::EstimateAssembliesLoader;
 use crate::http::estimate::assemblies::EstimateAssembly;
-use crate::http::estimate::Estimate;
+use crate::http::estimate::EstimateResolver;
 use crate::http::estimate::EstimateItem;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
 
-#[Object]
-impl Estimate {
+#[Object(name = "Estimate")]
+impl EstimateResolver {
     async fn id(&self) -> ID {
         ID::from(self.estimate_id)
     }

@@ -1,5 +1,5 @@
 use crate::http::estimate::loader::EstimateLoader;
-use crate::http::estimate::Estimate;
+use crate::http::estimate::EstimateResolver;
 use crate::http::project::Project;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
@@ -14,7 +14,7 @@ impl Project {
         self.project.to_string()
     }
 
-    async fn estimates(&self, ctx: &Context<'_>) -> Result<Vec<Estimate>> {
+    async fn estimates(&self, ctx: &Context<'_>) -> Result<Vec<EstimateResolver>> {
         let result = ctx
             .data_unchecked::<DataLoader<EstimateLoader>>()
             .load_one(self.project_id)
