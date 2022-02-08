@@ -54,8 +54,8 @@ async fn test_add_item_to_assembly() {
         quantity: i32,
     }
 
-    let assembly_id = Uuid::parse_str("00000000-0000-0000-0000-000000000003").unwrap();
-    let item_id = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
+    let assembly_id = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
+    let item_id = Uuid::parse_str("00000000-0000-0000-0000-000000000002").unwrap();
     let quantity = 10;
 
     let vars = Vars {
@@ -93,11 +93,19 @@ async fn test_add_item_to_assembly() {
         "addItemToAssembly": {
             "assembly": {
                 "id": assembly_id,
-                "cost": 100,
+                "cost": 10200,
                 "items": [
                     {
+                        "id": "00000000-0000-0000-0000-000000000001",
+                        "quantity": 100,
+                    },
+                    {
                         "id": item_id,
-                        "quantity": 10,
+                        "quantity": quantity,
+                    },
+                    {
+                        "id": "00000000-0000-0000-0000-000000000003",
+                        "quantity": 300,
                     }
                 ]
             }
@@ -110,5 +118,5 @@ async fn test_add_item_to_assembly() {
 
     // TODO: Make this check better
     assert!(result.is_ok());
-    assert_eq!(result.unwrap().len(), 1)
+    assert_eq!(result.unwrap().len(), 3)
 }
