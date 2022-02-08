@@ -1,7 +1,6 @@
 use crate::http::estimate::assemblies::loader::EstimateAssembliesLoader;
 use crate::http::estimate::assemblies::EstimateAssembly;
 use crate::http::estimate::EstimateResolver;
-use crate::http::estimate::EstimateItem;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
@@ -19,9 +18,27 @@ impl EstimateResolver {
     async fn cost(&self, ctx: &Context<'_>) -> Result<i64> {
         let pool = ctx.data_unchecked::<PgPool>();
 
-        let cost = EstimateItem::cost(self.estimate_id, pool).await?;
+        let assemblies = sqlx::query!(
+            // language=PostgreSQL
+            r#"
+            select ea.quantity, a.cost
+            from estimate_assemblies ea
+            inner join assembly a using (assembly_id)
+            where ea.estimate_id = $1
+            "#,
+            self.estimate_id
+        )
+        .fetch_all(pool)
+        .await?;
 
-        Ok(cost)
+        let total = assemblies.into_iter().fold(0, |total, assembly| {
+            total + (assembly.quantity * assembly.cost) as i64
+        });
+
+        // TODO: Delete this
+        // let cost = EstimateItem::cost(self.estimate_id, pool).await?;
+
+        Ok(total)
     }
 
     async fn assemblies(&self, ctx: &Context<'_>) -> Result<Vec<EstimateAssembly>> {

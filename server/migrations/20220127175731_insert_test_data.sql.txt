@@ -1,4 +1,4 @@
-INSERT INTO assembly (id, assembly, cost)
+INSERT INTO assembly (assembly_id, assembly, cost)
 VALUES ('95d7b5a6-1fe0-40a1-985d-8f449f9d4e46', 'Assembly 1', 1),
        ('a9f70add-df80-4151-875e-0a5aa3836713', 'Assembly 2', 2),
        ('513b7442-62f7-4838-89bb-929d5b867046', 'Assembly 3', 3),
@@ -4002,7 +4002,7 @@ VALUES ('00000000-0000-0000-0000-000000000001', '95d7b5a6-1fe0-40a1-985d-8f449f9
 --        ('00000000-0000-0000-0000-000000000001', '7d3db2bc-1349-47ae-b5b7-7f917f311842', '169'),
 --        ('00000000-0000-0000-0000-000000000001', '5bd508b2-136a-488e-868a-72bd7da0a184', '151');
 
-INSERT INTO item (id, item, cost)
+INSERT INTO item (item_id, item, cost)
 VALUES ('89629f1f-6aab-4a90-87db-173b8a5753ca', 'Item 1', 0.10),
        ('1b001f58-ec68-4ea7-95f0-d29b955437d0', 'Item 2', 0.20),
        ('0935913c-8c08-40f3-8f1a-14495fbc437f', 'Item 3', 0.30),

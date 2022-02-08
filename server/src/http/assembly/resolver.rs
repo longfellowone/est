@@ -9,6 +9,10 @@ impl Assembly {
         ID::from(self.assembly_id)
     }
 
+    async fn cost(&self) -> i32 {
+        self.cost
+    }
+
     async fn assembly(&self) -> String {
         self.assembly.to_string()
     }

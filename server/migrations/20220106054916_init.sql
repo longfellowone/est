@@ -29,26 +29,9 @@ CREATE TABLE assembly
 );
 
 INSERT INTO assembly (assembly_id, assembly, cost)
-VALUES ('00000000-0000-0000-0000-000000000001', 'Assembly 1', 100),
-       ('00000000-0000-0000-0000-000000000002', 'Assembly 2', 200),
-       ('00000000-0000-0000-0000-000000000003', 'Assembly 3', 300);
-
-CREATE TABLE estimate_assemblies
-(
-    estimate_id uuid REFERENCES estimate (estimate_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    assembly_id uuid REFERENCES assembly (assembly_id) ON UPDATE CASCADE,
-    quantity    int NOT NULL,
-    PRIMARY KEY (estimate_id, assembly_id)
-);
-
--- CREATE INDEX estimate_assemblies_estimate_index ON estimate_assemblies (estimate_id);
--- CREATE INDEX estimate_assemblies_assembly_index ON estimate_assemblies (assembly_id);
-
-INSERT INTO estimate_assemblies (estimate_id, assembly_id, quantity)
-VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 10),
-       ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 20),
-       ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 30),
-       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 40);
+VALUES ('00000000-0000-0000-0000-000000000001', 'Assembly 1', 10000),
+       ('00000000-0000-0000-0000-000000000002', 'Assembly 2', 13000),
+       ('00000000-0000-0000-0000-000000000003', 'Assembly 3', 0);
 
 CREATE TABLE item
 (
@@ -79,6 +62,24 @@ VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000
        ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 300),
        ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', 200),
        ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003', 300);
+
+CREATE TABLE estimate_assemblies
+(
+    estimate_id uuid REFERENCES estimate (estimate_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    assembly_id uuid REFERENCES assembly (assembly_id) ON UPDATE CASCADE,
+    quantity    int NOT NULL,
+    PRIMARY KEY (estimate_id, assembly_id)
+);
+
+-- CREATE INDEX estimate_assemblies_estimate_index ON estimate_assemblies (estimate_id);
+-- CREATE INDEX estimate_assemblies_assembly_index ON estimate_assemblies (assembly_id);
+
+INSERT INTO estimate_assemblies (estimate_id, assembly_id, quantity)
+VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 10),
+       ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 20),
+       ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 30),
+       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 40);
+
 
 -- https://dba.stackexchange.com/questions/146906/insert-into-three-tables-with-many-to-many-from-one-table?
 -- http://sqlfiddle.com/#!17/390a7/77

@@ -8,7 +8,7 @@ use tower::ServiceBuilder;
 use tower_http::cors::{any, CorsLayer};
 use tower_http::trace::TraceLayer;
 
-mod assembly;
+pub mod assembly;
 pub mod estimate;
 mod graphql;
 pub mod project;

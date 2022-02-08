@@ -1,4 +1,5 @@
 use crate::http::assembly::items::loader::AssemblyItemLoader;
+use crate::http::assembly::mutations::AssemblyMutations;
 use crate::http::assembly::queries::AssemblyQueries;
 use crate::http::estimate::assemblies::loader::EstimateAssembliesLoader;
 use crate::http::estimate::loader::EstimateLoader;
@@ -23,7 +24,7 @@ use sqlx::PgPool;
 pub struct QueryRoot(ProjectQueries, EstimateQueries, AssemblyQueries);
 
 #[derive(MergedObject, Default)]
-pub struct MutationRoot(ProjectMutations, EstimateMutations);
+pub struct MutationRoot(ProjectMutations, EstimateMutations, AssemblyMutations);
 
 pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 

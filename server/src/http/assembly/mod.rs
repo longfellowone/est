@@ -11,6 +11,7 @@ use uuid::Uuid;
 pub struct Assembly {
     pub assembly_id: Uuid,
     pub assembly: String,
+    pub cost: i32,
 }
 
 impl Assembly {
@@ -19,7 +20,7 @@ impl Assembly {
             Assembly,
             // language=PostgreSQL
             r#"
-            select assembly_id, assembly
+            select assembly_id, assembly, cost
             from assembly
             where assembly_id = $1
             "#,

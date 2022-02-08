@@ -65,29 +65,32 @@ mod tests {
 
         #[derive(Serialize)]
         struct Vars {
+            id: ID,
             input: AddAssemblyToEstimateInput,
         }
 
         #[derive(Serialize)]
         #[serde(rename_all = "camelCase")]
         struct AddAssemblyToEstimateInput {
-            estimate_id: ID,
             assembly_id: ID,
+            quantity: Option<i32>,
         }
 
         let estimate_id = Uuid::parse_str("00000000-0000-0000-0000-000000000003").unwrap();
         let assembly_id = Uuid::parse_str("00000000-0000-0000-0000-000000000003").unwrap();
 
         let vars = Vars {
+            id: ID::from(estimate_id),
             input: AddAssemblyToEstimateInput {
-                estimate_id: ID::from(estimate_id),
                 assembly_id: ID::from(assembly_id),
+                quantity: Some(2),
             },
         };
 
         let query = r#"
-            mutation AddAssemblyToEstimate($input: AddAssemblyToEstimateInput!) {
+            mutation AddAssemblyToEstimate($id: ID!, $input: AddAssemblyToEstimateInput!) {
                 addAssemblyToEstimate(
+                    id: $id
                     input: $input
                 ) {
                     estimate {
@@ -117,7 +120,7 @@ mod tests {
                             "id": assembly_id,
                             "assembly": "Assembly 3",
                             "cost": 0,
-                            "quantity": 0,
+                            "quantity": 2,
                         }
                     ]
                 }

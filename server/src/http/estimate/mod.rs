@@ -113,6 +113,7 @@ impl EstimateResolver {
     pub async fn add_assembly(
         estimate_id: Uuid,
         assembly_id: Uuid,
+        quantity: i32,
         pool: &PgPool,
     ) -> Result<Self, AppError> {
         sqlx::query_as!(
@@ -122,17 +123,18 @@ impl EstimateResolver {
             with insert as (
                 insert into estimate_assemblies (estimate_id, assembly_id, quantity)
                 values ($1, $2, $3)
-                returning estimate_id
+--                 returning estimate_id
             )
             select e.estimate_id as "estimate_id!",
                    e.project_id as "project_id!",
                    e.estimate as "estimate!"
             from estimate e
-            inner join insert i using (estimate_id)
+            where e.estimate_id = $1
+--             inner join insert i using (estimate_id)
             "#,
             estimate_id,
             assembly_id,
-            0
+            quantity
         )
         .fetch_one(pool)
         .await
@@ -148,6 +150,8 @@ pub struct EstimateItem {
 }
 
 impl EstimateItem {
+    // TODO: Delete this?
+
     pub async fn cost(estimate_id: Uuid, pool: &PgPool) -> Result<i64, AppError> {
         let estimate_items = sqlx::query_as!(
             EstimateItem,
