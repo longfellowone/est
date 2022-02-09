@@ -1,5 +1,5 @@
-use crate::http::assembly_items::AssemblyItem;
 use crate::http::assembly::Assembly;
+use crate::http::assembly_item::AssemblyItem;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
 

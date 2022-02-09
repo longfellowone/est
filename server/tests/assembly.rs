@@ -3,7 +3,7 @@ use async_graphql::ID;
 use gql_client::Client;
 use serde::Serialize;
 use serde_json::Value;
-use server::http::assembly_items::AssemblyItem;
+use server::http::assembly_item::AssemblyItem;
 use uuid::Uuid;
 
 mod common;
@@ -256,7 +256,7 @@ async fn test_update_assembly_item_quantity() {
                 "items": [
                     {
                         "id": "00000000-0000-0000-0000-000000000001",
-                        "quantity": 10 // 10 * 10 = 100
+                        "quantity": 10 // 10 (originally 100) * 10 = 100
                     },
                     {
                         "id": "00000000-0000-0000-0000-000000000003",
@@ -273,4 +273,8 @@ async fn test_update_assembly_item_quantity() {
 
     assert!(result.is_ok());
     assert_eq!(result.unwrap()[0].quantity, 10)
+}
+#[tokio::test]
+async fn update_cost_of_item() -> {
+    todo!()
 }

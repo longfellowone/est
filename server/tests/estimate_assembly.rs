@@ -7,7 +7,7 @@ mod tests {
     use gql_client::Client;
     use serde::Serialize;
     use serde_json::Value;
-    use server::http::estimate_assemblies::EstimateAssembly;
+    use server::http::estimate_assembly::EstimateAssembly;
     use uuid::Uuid;
 
     #[tokio::test]

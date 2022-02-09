@@ -1,6 +1,6 @@
-use crate::http::assembly_items::loader::AssemblyItemLoader;
-use crate::http::assembly_items::AssemblyItem;
-use crate::http::estimate_assemblies::EstimateAssembly;
+use crate::http::assembly_item::loader::AssemblyItemLoader;
+use crate::http::assembly_item::AssemblyItem;
+use crate::http::estimate_assembly::EstimateAssembly;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 

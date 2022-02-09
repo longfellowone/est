@@ -74,6 +74,35 @@ impl AssemblyMutations {
 
         Ok(payload)
     }
+
+    async fn update_assembly_item_quantity(
+        &self,
+        ctx: &Context<'_>,
+        id: ID,
+        input: UpdateAssemblyItemQuantityInput,
+    ) -> Result<UpdateAssemblyItemQuantityPayload> {
+        let pool = ctx.data_unchecked::<PgPool>();
+
+        let assembly_id = Uuid::parse_str(&id).unwrap();
+        let item_id = Uuid::parse_str(&input.item_id).unwrap();
+
+        let mut tx = pool.begin().await?;
+
+        tx.commit().await?;
+
+        todo!()
+    }
+}
+
+#[derive(InputObject)]
+pub struct UpdateAssemblyItemQuantityInput {
+    item_id: ID,
+    quantity: i32,
+}
+
+#[derive(SimpleObject)]
+pub struct UpdateAssemblyItemQuantityPayload {
+    assembly: Option<Assembly>,
 }
 
 #[derive(InputObject)]

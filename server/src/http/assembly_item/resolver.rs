@@ -1,4 +1,4 @@
-use crate::http::assembly_items::AssemblyItem;
+use crate::http::assembly_item::AssemblyItem;
 use async_graphql::{Object, ID};
 
 #[Object]

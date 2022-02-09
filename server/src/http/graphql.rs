@@ -1,13 +1,14 @@
-use crate::http::assembly_items::loader::AssemblyItemLoader;
 use crate::http::assembly::mutations::AssemblyMutations;
 use crate::http::assembly::queries::AssemblyQueries;
-use crate::http::estimate_assemblies::loader::EstimateAssembliesLoader;
+use crate::http::assembly_item::loader::AssemblyItemLoader;
 use crate::http::estimate::loader::EstimateLoader;
 use crate::http::estimate::mutations::EstimateMutations;
 use crate::http::estimate::queries::EstimateQueries;
+use crate::http::estimate_assembly::loader::EstimateAssembliesLoader;
 use crate::http::project::loader::ProjectLoader;
 use crate::http::project::mutations::ProjectMutations;
 use crate::http::project::queries::ProjectQueries;
+use crate::http::testing::queries::TestingQueries;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptySubscription, MergedObject, Schema};
@@ -21,7 +22,12 @@ use sqlx::PgPool;
 // https://cs.github.com/cthit/hubbit2/blob/40cd6541c9b9daa6c65198fe6a763b5d794e8dc0/backend/src/schema/stats.rs#L420
 
 #[derive(MergedObject, Default)]
-pub struct QueryRoot(ProjectQueries, EstimateQueries, AssemblyQueries);
+pub struct QueryRoot(
+    ProjectQueries,
+    EstimateQueries,
+    AssemblyQueries,
+    TestingQueries,
+);
 
 #[derive(MergedObject, Default)]
 pub struct MutationRoot(ProjectMutations, EstimateMutations, AssemblyMutations);

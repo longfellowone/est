@@ -1,6 +1,6 @@
-use crate::http::estimate_assemblies::loader::EstimateAssembliesLoader;
-use crate::http::estimate_assemblies::EstimateAssembly;
 use crate::http::estimate::EstimateResolver;
+use crate::http::estimate_assembly::loader::EstimateAssembliesLoader;
+use crate::http::estimate_assembly::EstimateAssembly;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
@@ -15,6 +15,7 @@ impl EstimateResolver {
         self.estimate.to_string()
     }
 
+    // TODO: This needs to be loader
     async fn cost(&self, ctx: &Context<'_>) -> Result<i64> {
         let pool = ctx.data_unchecked::<PgPool>();
 

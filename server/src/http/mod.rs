@@ -9,11 +9,12 @@ use tower_http::cors::{any, CorsLayer};
 use tower_http::trace::TraceLayer;
 
 pub mod assembly;
+pub mod assembly_item;
 pub mod estimate;
+pub mod estimate_assembly;
 mod graphql;
 pub mod project;
-pub mod assembly_items;
-pub mod estimate_assemblies;
+pub mod testing;
 
 pub struct App {
     router: Router,
