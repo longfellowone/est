@@ -1,12 +1,11 @@
-use crate::error::{sqlx_error, AppError};
+use crate::error::{AppError, sqlx_error};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-pub mod assemblies;
 pub mod loader;
 pub mod mutations;
 pub mod queries;
-pub mod resolver;
+mod resolver;
 
 #[derive(Debug, Clone)]
 pub struct EstimateResolver {

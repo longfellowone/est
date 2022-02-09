@@ -1,9 +1,8 @@
-pub mod items;
 pub mod mutations;
 pub mod queries;
 mod resolver;
 
-use crate::error::{sqlx_error, AppError};
+use crate::error::{AppError, sqlx_error};
 use sqlx::PgPool;
 use uuid::Uuid;
 

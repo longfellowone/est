@@ -117,7 +117,7 @@ mod tests {
 
         let result = EstimateResolver::fetch_one(id, &app.pool).await;
 
-        // Todo: Make this check better
+        // TODO: Make this check better
         assert!(result.is_ok())
     }
 

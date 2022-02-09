@@ -1,7 +1,7 @@
-use crate::http::assembly::items::loader::AssemblyItemLoader;
+use crate::http::assembly_items::loader::AssemblyItemLoader;
 use crate::http::assembly::mutations::AssemblyMutations;
 use crate::http::assembly::queries::AssemblyQueries;
-use crate::http::estimate::assemblies::loader::EstimateAssembliesLoader;
+use crate::http::estimate_assemblies::loader::EstimateAssembliesLoader;
 use crate::http::estimate::loader::EstimateLoader;
 use crate::http::estimate::mutations::EstimateMutations;
 use crate::http::estimate::queries::EstimateQueries;

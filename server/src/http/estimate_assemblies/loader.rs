@@ -1,4 +1,4 @@
-use crate::http::estimate::assemblies::EstimateAssembly;
+use crate::http::estimate_assemblies::EstimateAssembly;
 use async_graphql::dataloader::Loader;
 use async_graphql::FieldError;
 use async_trait::async_trait;

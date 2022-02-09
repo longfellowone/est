@@ -12,6 +12,8 @@ pub mod assembly;
 pub mod estimate;
 mod graphql;
 pub mod project;
+pub mod assembly_items;
+pub mod estimate_assemblies;
 
 pub struct App {
     router: Router,
