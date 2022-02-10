@@ -23,14 +23,16 @@ impl EstimateAssembly {
             EstimateAssembly,
             // language=PostgreSQL
             r#"
-            SELECT ea.estimate_id as "estimate_id!", 
+            select ea.estimate_id as "estimate_id!", 
                    a.assembly_id as "assembly_id!",                    
                    a.assembly as "assembly!", 
                    a.cost as "cost!", 
                    ea.quantity as "quantity!"
-            FROM assembly a
-            INNER JOIN estimate_assemblies ea using (assembly_id)
-            WHERE estimate_id = ANY ($1)
+            from assembly a
+            inner join estimate_assemblies ea using (assembly_id)
+            where estimate_id = ANY ($1)
+            -- TODO: How should this be ordered? by created at desc?
+            order by a.assembly_id           
             "#,
             estimate_ids
         )

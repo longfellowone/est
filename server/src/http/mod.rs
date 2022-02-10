@@ -27,7 +27,8 @@ impl App {
 
         let cors = CorsLayer::new()
             .allow_methods(vec![Method::GET, Method::POST])
-            .allow_origin(any());
+            .allow_origin(any())
+            .allow_headers(any());
 
         let middleware = ServiceBuilder::new()
             .layer(TraceLayer::new_for_http())
