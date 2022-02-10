@@ -7,10 +7,10 @@ services:
         - .env
       ports:
         - '5432:5432'
-#    search:
-#      image: getmeili/meilisearch:latest
-#      restart: always
-#      env_file:
-#        - .env
-#      ports:
-#        - '7700:7700'
+    search:
+      image: getmeili/meilisearch:v0.25.2
+      restart: always
+      env_file:
+        - .env
+      ports:
+        - '7700:7700'

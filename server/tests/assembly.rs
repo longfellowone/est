@@ -275,6 +275,6 @@ async fn test_update_assembly_item_quantity() {
     assert_eq!(result.unwrap()[0].quantity, 10)
 }
 #[tokio::test]
-async fn update_cost_of_item() -> {
+async fn update_cost_of_item() {
     todo!()
 }
