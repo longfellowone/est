@@ -7,7 +7,7 @@ mod tests {
     use gql_client::Client;
     use serde::Serialize;
     use serde_json::Value;
-    use server::http::estimate_assembly::EstimateAssembly;
+    use server::http::estimate_line_item::EstimateLineItem;
     use uuid::Uuid;
 
     #[tokio::test]
@@ -129,7 +129,7 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let result = EstimateAssembly::fetch_in_estimate(&[estimate_id], &app.pool).await;
+        let result = EstimateLineItem::fetch_in_estimate(&[estimate_id], &app.pool).await;
 
         // Todo: Make this check better
         assert!(result.is_ok());

@@ -1,17 +1,16 @@
 use crate::http::assembly::mutations::AssemblyMutations;
 use crate::http::assembly::queries::AssemblyQueries;
-use crate::http::assembly_item::loader::AssemblyItemLoader;
+use crate::http::assembly_component::loader::AssemblyItemLoader;
 use crate::http::estimate::loader::EstimateLoader;
 use crate::http::estimate::mutations::EstimateMutations;
 use crate::http::estimate::queries::EstimateQueries;
-use crate::http::estimate_assembly::loader::EstimateAssembliesLoader;
+use crate::http::estimate_line_item::loader::EstimateAssembliesLoader;
 use crate::http::project::loader::ProjectLoader;
 use crate::http::project::mutations::ProjectMutations;
 use crate::http::project::queries::ProjectQueries;
-use crate::http::testing::queries::TestingQueries;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
-use async_graphql::{EmptySubscription, MergedObject, Schema};
+use async_graphql::{EmptyMutation, EmptySubscription, MergedObject, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::extract::Extension;
 use axum::response;
@@ -22,17 +21,12 @@ use sqlx::PgPool;
 // https://cs.github.com/cthit/hubbit2/blob/40cd6541c9b9daa6c65198fe6a763b5d794e8dc0/backend/src/schema/stats.rs#L420
 
 #[derive(MergedObject, Default)]
-pub struct QueryRoot(
-    ProjectQueries,
-    EstimateQueries,
-    AssemblyQueries,
-    TestingQueries,
-);
+pub struct QueryRoot(ProjectQueries, EstimateQueries, AssemblyQueries);
 
-#[derive(MergedObject, Default)]
-pub struct MutationRoot(ProjectMutations, EstimateMutations, AssemblyMutations);
+// #[derive(MergedObject, Default)]
+// pub struct MutationRoot(ProjectMutations, EstimateMutations, AssemblyMutations);
 
-pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
+pub type GraphqlSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
 
 pub fn schema(pool: PgPool) -> GraphqlSchema {
     let project_loader = DataLoader::new(ProjectLoader::new(pool.clone()), tokio::spawn);
@@ -44,7 +38,8 @@ pub fn schema(pool: PgPool) -> GraphqlSchema {
 
     Schema::build(
         QueryRoot::default(),
-        MutationRoot::default(),
+        EmptyMutation,
+        // MutationRoot::default(),
         EmptySubscription,
     )
     .data(pool)

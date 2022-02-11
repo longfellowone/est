@@ -1,5 +1,5 @@
 use crate::http::assembly::Assembly;
-use crate::http::assembly_item::AssemblyItem;
+use crate::http::assembly_component::AssemblyComponent;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
 
@@ -9,19 +9,24 @@ impl Assembly {
         ID::from(self.assembly_id)
     }
 
-    async fn cost(&self) -> i32 {
-        self.cost
-    }
-
     async fn assembly(&self) -> String {
         self.assembly.to_string()
     }
 
-    async fn items(&self, ctx: &Context<'_>) -> Result<Vec<AssemblyItem>> {
-        let pool = ctx.data_unchecked::<PgPool>();
+    // async fn items(&self, ctx: &Context<'_>) -> Result<Vec<AssemblyItem>> {
+    //     let pool = ctx.data_unchecked::<PgPool>();
+    //
+    //     let items = AssemblyItem::fetch_all(self.assembly_id, pool).await?;
+    //
+    //     Ok(items)
+    // }
 
-        let items = AssemblyItem::fetch_all(self.assembly_id, pool).await?;
+    async fn components(&self) -> Result<Vec<AssemblyComponent>> {
+        let component = AssemblyComponent {
+            id: Default::default(),
+            quantity: 0,
+        };
 
-        Ok(items)
+        Ok(vec![component])
     }
 }
