@@ -3,7 +3,7 @@ use async_graphql::ID;
 use gql_client::Client;
 use serde::Serialize;
 use serde_json::Value;
-use server::http::assembly_component::AssemblyComponent;
+use server::http::assembly_components::AssemblyComponent;
 use uuid::Uuid;
 
 mod common;

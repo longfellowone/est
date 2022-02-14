@@ -14,4 +14,8 @@ impl Product {
     async fn cost(&self) -> i32 {
         self.cost
     }
+
+    async fn labour(&self) -> i32 {
+        self.labour
+    }
 }

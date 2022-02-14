@@ -1,8 +1,9 @@
+pub mod loader;
 pub mod mutations;
 pub mod queries;
 mod resolver;
 
-use crate::error::{AppError, sqlx_error};
+use crate::error::{sqlx_error, AppError};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -10,23 +11,23 @@ use uuid::Uuid;
 pub struct Assembly {
     pub assembly_id: Uuid,
     pub assembly: String,
-    pub cost: i32,
 }
 
 impl Assembly {
     pub async fn fetch_one(id: Uuid, pool: &PgPool) -> Result<Assembly, AppError> {
-        sqlx::query_as!(
-            Assembly,
-            // language=PostgreSQL
-            r#"
-            select assembly_id, assembly, cost
-            from assembly
-            where assembly_id = $1
-            "#,
-            id
-        )
-        .fetch_one(pool)
-        .await
-        .map_err(sqlx_error)
+        unimplemented!()
+        // sqlx::query_as!(
+        //     Assembly,
+        //     // language=PostgreSQL
+        //     r#"
+        //     select assembly_id, assembly, cost
+        //     from assembly
+        //     where assembly_id = $1
+        //     "#,
+        //     id
+        // )
+        // .fetch_one(pool)
+        // .await
+        // .map_err(sqlx_error)
     }
 }

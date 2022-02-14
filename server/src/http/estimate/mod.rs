@@ -20,19 +20,20 @@ impl EstimateResolver {
         project_id: Uuid,
         pool: &PgPool,
     ) -> Result<Vec<Self>, AppError> {
-        sqlx::query_as!(
-            EstimateResolver,
-            // language=PostgreSQL
-            r#"
-            select estimate_id, project_id, estimate
-            from estimate
-            where project_id = $1
-            "#,
-            project_id
-        )
-        .fetch_all(pool)
-        .await
-        .map_err(sqlx_error)
+        unimplemented!()
+        // sqlx::query_as!(
+        //     EstimateResolver,
+        //     // language=PostgreSQL
+        //     r#"
+        //     select estimate_id, project_id, estimate
+        //     from estimate
+        //     where project_id = $1
+        //     "#,
+        //     project_id
+        // )
+        // .fetch_all(pool)
+        // .await
+        // .map_err(sqlx_error)
     }
 
     pub async fn fetch_one(id: Uuid, pool: &PgPool) -> Result<Self, AppError> {
@@ -52,61 +53,64 @@ impl EstimateResolver {
     }
 
     pub async fn fetch_in_project(ids: &[Uuid], pool: &PgPool) -> Result<Vec<Self>, AppError> {
-        sqlx::query_as!(
-            EstimateResolver,
-            // language=PostgreSQL
-            r#"
-            select estimate_id, project_id, estimate
-            from estimate
-            where project_id = any($1)
-            "#,
-            ids,
-        )
-        .fetch_all(pool)
-        .await
-        .map_err(sqlx_error)
+        unimplemented!();
+        // sqlx::query_as!(
+        //     EstimateResolver,
+        //     // language=PostgreSQL
+        //     r#"
+        //     select estimate_id, project_id, estimate
+        //     from estimate
+        //     where project_id = any($1)
+        //     "#,
+        //     ids,
+        // )
+        // .fetch_all(pool)
+        // .await
+        // .map_err(sqlx_error)
     }
 
     pub async fn create(estimate: EstimateResolver, pool: &PgPool) -> Result<Self, AppError> {
-        sqlx::query_as!(
-            EstimateResolver,
-            // language=PostgreSQL
-            r#"
-            insert into estimate (estimate_id, project_id, estimate) 
-            values ($1, $2, $3)
-            returning estimate_id, project_id, estimate
-            "#,
-            estimate.estimate_id,
-            estimate.project_id,
-            estimate.estimate,
-        )
-        .fetch_one(pool)
-        .await
-        .map_err(sqlx_error)
+        unimplemented!();
+        // sqlx::query_as!(
+        //     EstimateResolver,
+        //     // language=PostgreSQL
+        //     r#"
+        //     insert into estimate (estimate_id, project_id, estimate)
+        //     values ($1, $2, $3)
+        //     returning estimate_id, project_id, estimate
+        //     "#,
+        //     estimate.estimate_id,
+        //     estimate.project_id,
+        //     estimate.estimate,
+        // )
+        // .fetch_one(pool)
+        // .await
+        // .map_err(sqlx_error)
     }
 
     pub async fn delete(id: Uuid, pool: &PgPool) -> Result<Uuid, AppError> {
-        // TODO: Change to soft delete
-        let result = sqlx::query!(
-            // language=PostgreSQL
-            r#"
-            delete from estimate 
-            where estimate_id = $1
-            "#,
-            id
-        )
-        .execute(pool)
-        .await
-        .map_err(sqlx_error);
-
-        // TODO: Improve this? - Return deleted status from soft delete
-        if let Ok(query) = result {
-            if query.rows_affected() == 0 {
-                return Err(AppError::BadRequest);
-            }
-        }
-
-        Ok(id)
+        unimplemented!();
+        // // TODO: Change to soft delete
+        // let result = sqlx::query!(
+        //     // language=PostgreSQL
+        //     r#"
+        //     delete from estimate
+        //     where estimate_id = $1
+        //     "#,
+        //     id
+        // )
+        // .execute(pool)
+        // .await
+        // .map_err(sqlx_error);
+        //
+        // // TODO: Improve this? - Return deleted status from soft delete
+        // if let Ok(query) = result {
+        //     if query.rows_affected() == 0 {
+        //         return Err(AppError::BadRequest);
+        //     }
+        // }
+        //
+        // Ok(id)
     }
 
     pub async fn add_assembly(

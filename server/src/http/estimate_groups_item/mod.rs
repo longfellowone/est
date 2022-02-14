@@ -6,8 +6,10 @@ pub mod loader;
 mod resolver;
 
 #[derive(Debug, Clone)]
-pub struct EstimateLineItem {
+pub struct EstimateGroupItem {
     pub id: Uuid,
+    pub group_id: Uuid,
+    pub assembly_id: Uuid,
     pub quantity: i32,
 }
 

@@ -4,6 +4,10 @@ use server::http::App;
 
 #[tokio::main]
 async fn main() -> hyper::Result<()> {
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var("RUST_LOG", "server=debug,tower_http=error,sqlx=error");
+    }
+
     tracing_subscriber::fmt::init();
 
     let config = Configuration {

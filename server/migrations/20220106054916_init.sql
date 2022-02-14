@@ -21,31 +21,44 @@ values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000
        ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'estimate 2'),
        ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002', 'estimate 3');
 
+create table estimate_groups
+(
+    group_id    uuid primary key,
+    estimate_id uuid not null references estimate (estimate_id) on update cascade on delete cascade,
+    name        text not null -- TODO: rename this
+);
+
+insert into estimate_groups (group_id, estimate_id, name)
+values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Default Group'),
+       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Another Custom Group');
+
+
 create table assembly
 (
     assembly_id uuid primary key,
-    assembly    text not null,
-    cost        int  not null
+    assembly    text not null
 );
 
-insert into assembly (assembly_id, assembly, cost)
-values ('00000000-0000-0000-0000-000000000001', 'assembly 1', 10000),
-       ('00000000-0000-0000-0000-000000000002', 'assembly 2', 13000),
-       ('00000000-0000-0000-0000-000000000003', 'assembly 3', 0);
+insert into assembly (assembly_id, assembly)
+values ('00000000-0000-0000-0000-000000000001', 'assembly 1'),
+       ('00000000-0000-0000-0000-000000000002', 'assembly 2'),
+       ('00000000-0000-0000-0000-000000000003', 'assembly 3');
 
-create table estimate_line_item
+create table estimate_group_items
 (
     id          uuid primary key,
-    estimate_id uuid references estimate (estimate_id) on update cascade on delete cascade,
-    assembly_id uuid references assembly (assembly_id) on update cascade,
+    group_id    uuid not null references estimate_groups (group_id) on update cascade,
+    assembly_id uuid not null references assembly ( assembly_id) on update cascade,
+    -- TODO: Add product ID for union, use null
     quantity    int not null,
-    unique (estimate_id, assembly_id)
+    unique (group_id, assembly_id)
 );
 
-create index estimate_line_item_estimate_index on estimate_line_item (estimate_id);
-create index estimate_line_item_assembly_index on estimate_line_item (assembly_id);
+-- TODO: Not sure indexes are required? does foreignkey automatically get indexed?
+create index estimate_line_item_estimate_index on estimate_group_items (group_id);
+create index estimate_line_item_assembly_index on estimate_group_items (assembly_id);
 
-insert into estimate_line_item (id, estimate_id, assembly_id, quantity)
+insert into estimate_group_items (id, group_id, assembly_id, quantity)
 values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001',
         '00000000-0000-0000-0000-000000000001', 10),
        ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001',
@@ -59,21 +72,22 @@ values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000
 create table product
 (
     product_id uuid primary key,
-    item       text not null,
-    cost       int  not null
+    product    text not null,
+    cost       int  not null, -- Cost in cents
+    labour     int  not null  -- Labour in minutes
 );
 
-insert into product (product_id, item, cost)
-values ('00000000-0000-0000-0000-000000000001', 'product 1', 10),
-       ('00000000-0000-0000-0000-000000000002', 'product 2', 20),
-       ('00000000-0000-0000-0000-000000000003', 'product 3', 30);
+insert into product (product_id, product, cost, labour)
+values ('00000000-0000-0000-0000-000000000001', 'product 1', 10, 60),
+       ('00000000-0000-0000-0000-000000000002', 'product 2', 20, 30),
+       ('00000000-0000-0000-0000-000000000003', 'product 3', 30, 15);
 
 create table assembly_component
 (
     id          uuid primary key,
-    assembly_id uuid references assembly (assembly_id) on update cascade,
-    product_id  uuid references product (product_id) on update cascade,
-    quantity    int not null,
+    assembly_id uuid not null references assembly (assembly_id) on update cascade,
+    product_id  uuid not null references product (product_id) on update cascade,
+    quantity    int  not null,
     unique (assembly_id, product_id)
 );
 

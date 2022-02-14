@@ -1,7 +1,7 @@
 use crate::http::estimate::EstimateResolver;
-use crate::http::estimate_group::EstimateGroup;
-use crate::http::estimate_line_item::loader::EstimateAssembliesLoader;
-use crate::http::estimate_line_item::EstimateLineItem;
+use crate::http::estimate_groups::EstimateGroup;
+use crate::http::estimate_groups_item::loader::GroupAssembliesLoader;
+use crate::http::estimate_groups_item::EstimateGroupItem;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
@@ -16,13 +16,24 @@ impl EstimateResolver {
         self.estimate.to_string()
     }
 
-    async fn group(&self) -> Result<Vec<EstimateGroup>> {
-        let group = EstimateGroup {
-            group_id: Default::default(),
-            group: "group 1".to_string(),
-        };
+    async fn groups(&self, ctx: &Context<'_>) -> Result<Vec<EstimateGroup>> {
+        // TODO: Make this a loader
+        let pool = ctx.data_unchecked::<PgPool>();
 
-        Ok(vec![group])
+        let groups = sqlx::query_as!(
+            // language=PostgreSQL
+            EstimateGroup,
+            r#"
+            select group_id, name
+            from estimate_groups
+            where estimate_id = $1
+            "#,
+            self.estimate_id
+        )
+        .fetch_all(pool)
+        .await?;
+
+        Ok(groups)
     }
 
     // // TODO: This needs to be loader

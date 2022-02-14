@@ -1,4 +1,4 @@
-use crate::http::product::Product;
+use crate::http::assembly::Assembly;
 use async_graphql::dataloader::Loader;
 use async_graphql::futures_util::TryStreamExt;
 use async_graphql::FieldError;
@@ -7,35 +7,35 @@ use sqlx::PgPool;
 use std::collections::HashMap;
 use uuid::Uuid;
 
-pub struct ProductLoader(PgPool);
+pub struct GroupItemLoader(PgPool);
 
-impl ProductLoader {
+impl GroupItemLoader {
     pub fn new(pool: PgPool) -> Self {
         Self(pool)
     }
 }
 
 #[async_trait]
-impl Loader<Uuid> for ProductLoader {
-    type Value = Product;
+impl Loader<Uuid> for GroupItemLoader {
+    type Value = Assembly;
     type Error = FieldError;
 
     async fn load(&self, ids: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
-        let product = sqlx::query_as!(
-            Product,
+        let assembly = sqlx::query_as!(
+            Assembly,
             // language=PostgreSQL
             r#"
-            select product_id, product, cost, labour
-            from product
-            where product_id = any ($1)
+            select assembly_id, assembly
+            from assembly
+            where assembly_id = any ($1)
             "#,
-            ids,
+            ids
         )
         .fetch(&self.0)
-        .map_ok(|product: Product| (product.product_id, product))
+        .map_ok(|assembly: Assembly| (assembly.assembly_id, assembly))
         .try_collect()
         .await?;
 
-        Ok(product)
+        Ok(assembly)
     }
 }

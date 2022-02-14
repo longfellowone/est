@@ -8,6 +8,8 @@ mod resolver;
 #[derive(Debug, Clone)]
 pub struct AssemblyComponent {
     pub id: Uuid,
+    pub assembly_id: Uuid,
+    pub product_id: Uuid,
     pub quantity: i32,
 }
 

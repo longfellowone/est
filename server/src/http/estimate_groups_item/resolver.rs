@@ -1,12 +1,15 @@
+use crate::http::assembly::loader::GroupItemLoader;
 use crate::http::assembly::Assembly;
-use crate::http::assembly_component::loader::AssemblyItemLoader;
-use crate::http::assembly_component::AssemblyComponent;
-use crate::http::estimate_line_item::EstimateLineItem;
+use crate::http::assembly_components::loader::AssemblyComponentLoader;
+use crate::http::assembly_components::AssemblyComponent;
+use crate::http::estimate_groups_item::EstimateGroupItem;
+use crate::http::item::Item;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
+use uuid::Uuid;
 
 #[Object]
-impl EstimateLineItem {
+impl EstimateGroupItem {
     async fn id(&self) -> ID {
         self.id.into()
     }
@@ -15,12 +18,15 @@ impl EstimateLineItem {
         self.quantity
     }
 
-    async fn assembly(&self) -> Assembly {
-        Assembly {
-            assembly_id: Default::default(),
-            assembly: "Assembly 1".to_string(),
-            cost: 0,
-        }
+    async fn item(&self, ctx: &Context<'_>) -> Result<Item> {
+        // TODO: Select all in, if Some(assembly) return Assembly, if Some(product) return Product
+
+        let item = ctx
+            .data_unchecked::<DataLoader<GroupItemLoader>>()
+            .load_one(self.assembly_id)
+            .await?;
+
+        Ok(Item::Assembly(item.unwrap()))
     }
 
     // async fn components(&self, ctx: &Context<'_>) -> Result<Vec<AssemblyComponent>> {
