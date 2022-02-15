@@ -1,4 +1,4 @@
-use crate::http::assembly_components::AssemblyComponent;
+use crate::http::assembly_components::resolver::AssemblyComponent;
 use async_graphql::dataloader::Loader;
 use async_graphql::FieldError;
 use async_trait::async_trait;

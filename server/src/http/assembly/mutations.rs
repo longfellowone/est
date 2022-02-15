@@ -1,4 +1,4 @@
-use crate::http::assembly::Assembly;
+use crate::http::assembly::resolver::Assembly;
 use async_graphql::{Context, InputObject, Object, Result, SimpleObject, ID};
 use sqlx::PgPool;
 use uuid::Uuid;

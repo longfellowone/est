@@ -5,6 +5,7 @@ use crate::http::assembly_components::loader::AssemblyComponentLoader;
 use crate::http::estimate::loader::EstimateLoader;
 use crate::http::estimate::mutations::EstimateMutations;
 use crate::http::estimate::queries::EstimateQueries;
+use crate::http::estimate_groups::loader::EstimateGroupsLoader;
 use crate::http::estimate_groups_item::loader::GroupAssembliesLoader;
 use crate::http::item::Item::Product;
 use crate::http::product::loader::ProductLoader;
@@ -40,6 +41,8 @@ pub fn schema(pool: PgPool) -> GraphqlSchema {
         DataLoader::new(GroupAssembliesLoader::new(pool.clone()), tokio::spawn);
     let product_loader = DataLoader::new(ProductLoader::new(pool.clone()), tokio::spawn);
     let assembly_loader = DataLoader::new(GroupItemLoader::new(pool.clone()), tokio::spawn);
+    let estimate_groups_loader =
+        DataLoader::new(EstimateGroupsLoader::new(pool.clone()), tokio::spawn);
 
     Schema::build(
         QueryRoot::default(),
@@ -54,6 +57,7 @@ pub fn schema(pool: PgPool) -> GraphqlSchema {
     .data(estimate_assemblies_loader)
     .data(product_loader)
     .data(assembly_loader)
+    .data(estimate_groups_loader)
     .finish()
 }
 

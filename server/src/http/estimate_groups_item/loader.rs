@@ -1,4 +1,4 @@
-use crate::http::estimate_groups_item::EstimateGroupItem;
+use crate::http::estimate_groups_item::resolver::EstimateGroupItem;
 use async_graphql::dataloader::Loader;
 use async_graphql::FieldError;
 use async_trait::async_trait;

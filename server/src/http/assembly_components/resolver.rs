@@ -1,8 +1,16 @@
-use crate::http::assembly_components::AssemblyComponent;
 use crate::http::product::loader::ProductLoader;
 use crate::http::product::Product;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
+use uuid::Uuid;
+
+#[derive(Debug, Clone)]
+pub struct AssemblyComponent {
+    pub id: Uuid,
+    pub assembly_id: Uuid,
+    pub product_id: Uuid,
+    pub quantity: i32,
+}
 
 #[Object]
 impl AssemblyComponent {

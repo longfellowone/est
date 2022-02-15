@@ -1,4 +1,4 @@
-use crate::http::assembly::Assembly;
+use crate::http::assembly::resolver::Assembly;
 use crate::http::product::Product;
 use async_graphql::Union;
 

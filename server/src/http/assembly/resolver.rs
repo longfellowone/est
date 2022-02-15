@@ -1,10 +1,17 @@
-use crate::http::assembly::Assembly;
+use crate::error::AppError;
 use crate::http::assembly_components::loader::AssemblyComponentLoader;
-use crate::http::assembly_components::AssemblyComponent;
+use crate::http::assembly_components::resolver::AssemblyComponent;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
+use std::result;
 use uuid::Uuid;
+
+#[derive(Debug, Clone)]
+pub struct Assembly {
+    pub assembly_id: Uuid,
+    pub assembly: String,
+}
 
 #[Object]
 impl Assembly {
@@ -23,5 +30,24 @@ impl Assembly {
             .await?;
 
         Ok(components.unwrap_or_default())
+    }
+}
+
+impl Assembly {
+    pub async fn fetch_one(id: Uuid, pool: &PgPool) -> result::Result<Assembly, AppError> {
+        unimplemented!()
+        // sqlx::query_as!(
+        //     Assembly,
+        //     // language=PostgreSQL
+        //     r#"
+        //     select assembly_id, assembly, cost
+        //     from assembly
+        //     where assembly_id = $1
+        //     "#,
+        //     id
+        // )
+        // .fetch_one(pool)
+        // .await
+        // .map_err(sqlx_error)
     }
 }

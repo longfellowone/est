@@ -1,9 +1,15 @@
-use crate::http::estimate_groups::EstimateGroup;
 use crate::http::estimate_groups_item::loader::GroupAssembliesLoader;
-use crate::http::estimate_groups_item::EstimateGroupItem;
+use crate::http::estimate_groups_item::resolver::EstimateGroupItem;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use uuid::Uuid;
+
+#[derive(Debug, Clone)]
+pub struct EstimateGroup {
+    pub group_id: Uuid,
+    pub estimate_id: Uuid,
+    pub name: String,
+}
 
 #[Object]
 impl EstimateGroup {

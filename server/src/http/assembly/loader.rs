@@ -1,4 +1,4 @@
-use crate::http::assembly::Assembly;
+use crate::http::assembly::resolver::Assembly;
 use async_graphql::dataloader::Loader;
 use async_graphql::futures_util::TryStreamExt;
 use async_graphql::FieldError;
@@ -20,7 +20,7 @@ impl Loader<Uuid> for GroupItemLoader {
     type Value = Assembly;
     type Error = FieldError;
 
-    async fn load(&self, ids: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
+    async fn load(&self, assembly_ids: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
         let assembly = sqlx::query_as!(
             Assembly,
             // language=PostgreSQL
@@ -29,7 +29,7 @@ impl Loader<Uuid> for GroupItemLoader {
             from assembly
             where assembly_id = any ($1)
             "#,
-            ids
+            assembly_ids
         )
         .fetch(&self.0)
         .map_ok(|assembly: Assembly| (assembly.assembly_id, assembly))

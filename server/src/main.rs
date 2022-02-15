@@ -12,16 +12,16 @@ async fn main() -> hyper::Result<()> {
 
     let config = Configuration {
         http: Http {
-            host: "0.0.0.0".to_string(),
+            host: "localhost".to_string(),
             port: 8080,
         },
         postgres: Postgres {
-            host: "db-postgresql-sfo3-62793-do-user-3317000-0.b.db.ondigitalocean.com".to_string(),
-            port: 25060,
-            user: "doadmin".to_string(),
-            password: "tjaw0FWJKzH9wUhY".to_string(),
-            database: "defaultdb".to_string(),
-            sslmode: true,
+            host: "localhost".to_string(),
+            port: 5432,
+            user: "postgres".to_string(),
+            password: "postgres".to_string(),
+            database: "postgres".to_string(),
+            sslmode: false,
         },
     };
 

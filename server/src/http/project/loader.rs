@@ -1,4 +1,4 @@
-use crate::http::project::Project;
+use crate::http::project::resolver::Project;
 use async_graphql::dataloader::Loader;
 use async_graphql::futures_util::TryStreamExt;
 use async_graphql::FieldError;
