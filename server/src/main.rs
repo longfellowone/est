@@ -20,7 +20,7 @@ async fn main() -> hyper::Result<()> {
             port: 25060,
             user: "doadmin".to_string(),
             password: "odOAHxm1yf4jEFLr".to_string(),
-            database: "defaultdb".to_string(),
+            database: "postgres".to_string(),
             sslmode: true,
         },
     };
