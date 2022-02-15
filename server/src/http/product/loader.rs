@@ -1,4 +1,4 @@
-use crate::http::product::Product;
+use crate::http::product::resolver::Product;
 use async_graphql::dataloader::Loader;
 use async_graphql::futures_util::TryStreamExt;
 use async_graphql::FieldError;

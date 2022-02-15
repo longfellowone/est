@@ -1,4 +1,4 @@
-use crate::http::estimate_groups_item::resolver::EstimateGroupItem;
+use crate::http::estimate_groups_item::resolver::EstimateGroupLineItem;
 use async_graphql::dataloader::Loader;
 use async_graphql::FieldError;
 use async_trait::async_trait;
@@ -17,12 +17,12 @@ impl GroupAssembliesLoader {
 
 #[async_trait]
 impl Loader<Uuid> for GroupAssembliesLoader {
-    type Value = Vec<EstimateGroupItem>;
+    type Value = Vec<EstimateGroupLineItem>;
     type Error = FieldError;
 
     async fn load(&self, ids: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
         let items = sqlx::query_as!(
-            EstimateGroupItem,
+            EstimateGroupLineItem,
             // language=PostgreSQL
             r#"
             select id, group_id, assembly_id, quantity

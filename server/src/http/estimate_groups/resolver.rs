@@ -1,5 +1,5 @@
 use crate::http::estimate_groups_item::loader::GroupAssembliesLoader;
-use crate::http::estimate_groups_item::resolver::EstimateGroupItem;
+use crate::http::estimate_groups_item::resolver::EstimateGroupLineItem;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use uuid::Uuid;
@@ -21,7 +21,7 @@ impl EstimateGroup {
         self.name.to_owned()
     }
 
-    async fn items(&self, ctx: &Context<'_>) -> Result<Vec<EstimateGroupItem>> {
+    async fn line_items(&self, ctx: &Context<'_>) -> Result<Vec<EstimateGroupLineItem>> {
         let items = ctx
             .data_unchecked::<DataLoader<GroupAssembliesLoader>>()
             .load_one(self.group_id)

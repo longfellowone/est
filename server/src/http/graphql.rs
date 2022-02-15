@@ -7,8 +7,8 @@ use crate::http::estimate::mutations::EstimateMutations;
 use crate::http::estimate::queries::EstimateQueries;
 use crate::http::estimate_groups::loader::EstimateGroupsLoader;
 use crate::http::estimate_groups_item::loader::GroupAssembliesLoader;
-use crate::http::item::Item::Product;
 use crate::http::product::loader::ProductLoader;
+use crate::http::product::mutations::ProductMutations;
 use crate::http::project::loader::ProjectLoader;
 use crate::http::project::mutations::ProjectMutations;
 use crate::http::project::queries::ProjectQueries;
@@ -27,10 +27,11 @@ use sqlx::PgPool;
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(ProjectQueries, EstimateQueries, AssemblyQueries);
 
-// #[derive(MergedObject, Default)]
+#[derive(MergedObject, Default)]
+pub struct MutationRoot(ProductMutations);
 // pub struct MutationRoot(ProjectMutations, EstimateMutations, AssemblyMutations);
 
-pub type GraphqlSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
+pub type GraphqlSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub fn schema(pool: PgPool) -> GraphqlSchema {
     let project_loader = DataLoader::new(ProjectLoader::new(pool.clone()), tokio::spawn);
@@ -46,8 +47,7 @@ pub fn schema(pool: PgPool) -> GraphqlSchema {
 
     Schema::build(
         QueryRoot::default(),
-        EmptyMutation,
-        // MutationRoot::default(),
+        MutationRoot::default(),
         EmptySubscription,
     )
     .data(pool)

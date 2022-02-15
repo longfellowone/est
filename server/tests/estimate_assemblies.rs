@@ -7,7 +7,7 @@ mod tests {
     use gql_client::Client;
     use serde::Serialize;
     use serde_json::Value;
-    use server::http::estimate_groups_item::resolver::EstimateGroupItem;
+    use server::http::estimate_groups_item::resolver::EstimateGroupLineItem;
     use uuid::Uuid;
 
     #[tokio::test]
@@ -129,7 +129,7 @@ mod tests {
 
         assert_eq!(left, right);
 
-        let result = EstimateGroupItem::fetch_in_estimate(&[estimate_id], &app.pool).await;
+        let result = EstimateGroupLineItem::fetch_in_estimate(&[estimate_id], &app.pool).await;
 
         // Todo: Make this check better
         assert!(result.is_ok());

@@ -1,5 +1,5 @@
 use crate::http::product::loader::ProductLoader;
-use crate::http::product::Product;
+use crate::http::product::resolver::Product;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use uuid::Uuid;
