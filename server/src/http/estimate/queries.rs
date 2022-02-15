@@ -1,4 +1,4 @@
-use crate::http::estimate::EstimateResolver;
+use crate::http::estimate::resolver::Estimate;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -8,11 +8,21 @@ pub struct EstimateQueries;
 
 #[Object]
 impl EstimateQueries {
-    async fn estimate(&self, ctx: &Context<'_>, id: ID) -> Result<EstimateResolver> {
+    async fn estimate(&self, ctx: &Context<'_>, id: ID) -> Result<Estimate> {
         let pool = ctx.data_unchecked::<PgPool>();
         let id = Uuid::parse_str(&id)?;
 
-        let estimate = EstimateResolver::fetch_one(id, pool).await?;
+        let estimate = sqlx::query_as!(
+            Estimate,
+            r#"
+            select estimate_id, estimate
+            from estimate
+            where estimate_id = $1
+            "#,
+            id
+        )
+        .fetch_one(pool)
+        .await?;
 
         // TODO: Maybe load assemblies here, pass to EstimateResolver
         // (so cost can be calculated without loading from DB twice)

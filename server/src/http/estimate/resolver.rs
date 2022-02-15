@@ -1,12 +1,22 @@
-use crate::http::estimate::EstimateResolver;
-use crate::http::estimate_assembly::loader::EstimateAssembliesLoader;
-use crate::http::estimate_assembly::EstimateAssembly;
+use crate::http::estimate_groups::loader::EstimateGroupsLoader;
+use crate::http::estimate_groups::resolver::EstimateGroup;
+use crate::http::estimate_groups_item::loader::GroupAssembliesLoader;
+use crate::http::estimate_groups_item::resolver::EstimateGroupItem;
 use async_graphql::dataloader::DataLoader;
 use async_graphql::{Context, Object, Result, ID};
 use sqlx::PgPool;
+use uuid::Uuid;
 
-#[Object(name = "Estimate")]
-impl EstimateResolver {
+#[derive(Debug, Clone)]
+pub struct Estimate {
+    pub estimate_id: Uuid,
+    // pub project_id: Uuid,
+    pub estimate: String,
+}
+
+// #[Object(name = "Estimate")]
+#[Object]
+impl Estimate {
     async fn id(&self) -> ID {
         ID::from(self.estimate_id)
     }
@@ -15,39 +25,16 @@ impl EstimateResolver {
         self.estimate.to_string()
     }
 
-    // TODO: This needs to be loader
-    async fn cost(&self, ctx: &Context<'_>) -> Result<i64> {
-        let pool = ctx.data_unchecked::<PgPool>();
-
-        let assemblies = sqlx::query!(
-            // language=PostgreSQL
-            r#"
-            select ea.quantity, a.cost
-            from estimate_assemblies ea
-            inner join assembly a using (assembly_id)
-            where ea.estimate_id = $1
-            "#,
-            self.estimate_id
-        )
-        .fetch_all(pool)
-        .await?;
-
-        let total = assemblies.into_iter().fold(0, |total, assembly| {
-            total + (assembly.quantity * assembly.cost) as i64
-        });
-
-        // TODO: Delete this
-        // let cost = EstimateItem::cost(self.estimate_id, pool).await?;
-
-        Ok(total)
-    }
-
-    async fn assemblies(&self, ctx: &Context<'_>) -> Result<Vec<EstimateAssembly>> {
-        let result = ctx
-            .data_unchecked::<DataLoader<EstimateAssembliesLoader>>()
+    async fn groups(&self, ctx: &Context<'_>) -> Result<Vec<EstimateGroup>> {
+        let groups = ctx
+            .data_unchecked::<DataLoader<EstimateGroupsLoader>>()
             .load_one(self.estimate_id)
             .await?;
 
-        Ok(result.unwrap_or_default())
+        Ok(groups.unwrap_or_default())
     }
 }
+
+//     let total = assemblies.into_iter().fold(0, |total, assembly| {
+//         total + (assembly.quantity * assembly.cost) as i64
+//     });

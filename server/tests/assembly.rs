@@ -3,7 +3,7 @@ use async_graphql::ID;
 use gql_client::Client;
 use serde::Serialize;
 use serde_json::Value;
-use server::http::assembly_item::AssemblyItem;
+use server::http::assembly_components::resolver::AssemblyComponent;
 use uuid::Uuid;
 
 mod common;
@@ -114,7 +114,7 @@ async fn test_add_item_to_assembly() {
 
     assert_eq!(left, right);
 
-    let result = AssemblyItem::fetch_all(assembly_id, &app.pool).await;
+    let result = AssemblyComponent::fetch_all(assembly_id, &app.pool).await;
 
     // TODO: Make this check better
     assert!(result.is_ok());
@@ -189,7 +189,7 @@ async fn test_remove_item_from_assembly() {
 
     assert_eq!(left, right);
 
-    let result = AssemblyItem::fetch_all(assembly_id, &app.pool).await;
+    let result = AssemblyComponent::fetch_all(assembly_id, &app.pool).await;
 
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 1)
@@ -269,7 +269,7 @@ async fn test_update_assembly_item_quantity() {
 
     assert_eq!(left, right);
 
-    let result = AssemblyItem::fetch_all(assembly_id, &app.pool).await;
+    let result = AssemblyComponent::fetch_all(assembly_id, &app.pool).await;
 
     assert!(result.is_ok());
     assert_eq!(result.unwrap()[0].quantity, 10)

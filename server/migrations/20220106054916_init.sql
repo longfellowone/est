@@ -1,100 +1,106 @@
-CREATE TABLE project
+create table project
 (
-    project_id uuid PRIMARY KEY,
-    project    text NOT NULL
+    project_id uuid primary key,
+    project    text not null
 );
 
-INSERT INTO project (project_id, project)
-VALUES ('00000000-0000-0000-0000-000000000001', 'Project 1'),
-       ('00000000-0000-0000-0000-000000000002', 'Project 2');
+insert into project (project_id, project)
+values ('00000000-0000-0000-0000-000000000001', 'project 1'),
+       ('00000000-0000-0000-0000-000000000002', 'project 2');
 
--- TODO: Remove ON DELETE CASCADE and change to soft delete
-CREATE TABLE estimate
+-- todo: remove on delete cascade and change to soft delete
+create table estimate
 (
-    estimate_id uuid PRIMARY KEY,
-    project_id  uuid NOT NULL REFERENCES project (project_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    estimate    text NOT NULL
+    estimate_id uuid primary key,
+    project_id  uuid not null references project (project_id) on update cascade on delete cascade,
+    estimate    text not null
 );
 
-INSERT INTO estimate (estimate_id, project_id, estimate)
-VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Estimate 1'),
-       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Estimate 2'),
-       ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002', 'Estimate 3');
+insert into estimate (estimate_id, project_id, estimate)
+values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'estimate 1'),
+       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'estimate 2'),
+       ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002', 'estimate 3');
 
-CREATE TABLE assembly
+create table estimate_groups
 (
-    assembly_id uuid PRIMARY KEY,
-    assembly    text NOT NULL,
-    cost        int  NOT NULL
+    group_id    uuid primary key,
+    estimate_id uuid not null references estimate (estimate_id) on update cascade on delete cascade,
+    name        text not null -- TODO: rename this
 );
 
-INSERT INTO assembly (assembly_id, assembly, cost)
-VALUES ('00000000-0000-0000-0000-000000000001', 'Assembly 1', 10000),
-       ('00000000-0000-0000-0000-000000000002', 'Assembly 2', 13000),
-       ('00000000-0000-0000-0000-000000000003', 'Assembly 3', 0);
+insert into estimate_groups (group_id, estimate_id, name)
+values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Default Group'),
+       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Another Custom Group');
 
-CREATE TABLE item
+
+create table assembly
 (
-    item_id uuid PRIMARY KEY,
-    item    text NOT NULL,
-    cost    int  NOT NULL
+    assembly_id uuid primary key,
+    assembly    text not null
 );
 
-INSERT INTO item (item_id, item, cost)
-VALUES ('00000000-0000-0000-0000-000000000001', 'Item 1', 10),
-       ('00000000-0000-0000-0000-000000000002', 'Item 2', 20),
-       ('00000000-0000-0000-0000-000000000003', 'Item 3', 30);
+insert into assembly (assembly_id, assembly)
+values ('00000000-0000-0000-0000-000000000001', 'assembly 1'),
+       ('00000000-0000-0000-0000-000000000002', 'assembly 2'),
+       ('00000000-0000-0000-0000-000000000003', 'assembly 3');
 
-CREATE TABLE assembly_items
+create table estimate_group_items
 (
-    assembly_id uuid REFERENCES assembly (assembly_id) ON UPDATE CASCADE,
-    item_id     uuid REFERENCES item (item_id) ON UPDATE CASCADE,
-    quantity    int NOT NULL,
-    PRIMARY KEY (assembly_id, item_id)
+    id          uuid primary key,
+    group_id    uuid not null references estimate_groups (group_id) on update cascade,
+    assembly_id uuid not null references assembly ( assembly_id) on update cascade,
+    -- TODO: Add product ID for union, use null
+    quantity    int not null,
+    unique (group_id, assembly_id)
 );
 
--- CREATE INDEX assembly_items_assembly_index ON assembly_items (assembly_id);
--- CREATE INDEX assembly_items_item_index ON assembly_items (item_id);
+-- TODO: Not sure indexes are required? does foreignkey automatically get indexed?
+create index estimate_line_item_estimate_index on estimate_group_items (group_id);
+create index estimate_line_item_assembly_index on estimate_group_items (assembly_id);
+
+insert into estimate_group_items (id, group_id, assembly_id, quantity)
+values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001',
+        '00000000-0000-0000-0000-000000000001', 10),
+       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001',
+        '00000000-0000-0000-0000-000000000002', 20),
+       ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001',
+        '00000000-0000-0000-0000-000000000003', 30),
+       ('00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000002',
+        '00000000-0000-0000-0000-000000000001', 40);
 
 
-INSERT INTO assembly_items (assembly_id, item_id, quantity)
-VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 100),
-       ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 300),
-       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', 200),
-       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003', 300);
-
-CREATE TABLE estimate_assemblies
+create table product
 (
-    estimate_id uuid REFERENCES estimate (estimate_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    assembly_id uuid REFERENCES assembly (assembly_id) ON UPDATE CASCADE,
-    quantity    int NOT NULL,
-    PRIMARY KEY (estimate_id, assembly_id)
+    product_id uuid primary key,
+    product    text not null,
+    cost       int  not null, -- Cost in cents
+    labour     int  not null  -- Labour in minutes
 );
 
--- CREATE INDEX estimate_assemblies_estimate_index ON estimate_assemblies (estimate_id);
--- CREATE INDEX estimate_assemblies_assembly_index ON estimate_assemblies (assembly_id);
+insert into product (product_id, product, cost, labour)
+values ('00000000-0000-0000-0000-000000000001', 'product 1', 10, 60),
+       ('00000000-0000-0000-0000-000000000002', 'product 2', 20, 30),
+       ('00000000-0000-0000-0000-000000000003', 'product 3', 30, 15);
 
-INSERT INTO estimate_assemblies (estimate_id, assembly_id, quantity)
-VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 10),
-       ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 20),
-       ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 30),
-       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 40);
+create table assembly_component
+(
+    id          uuid primary key,
+    assembly_id uuid not null references assembly (assembly_id) on update cascade,
+    product_id  uuid not null references product (product_id) on update cascade,
+    quantity    int  not null,
+    unique (assembly_id, product_id)
+);
+
+create index assembly_component_assembly_index on assembly_component (assembly_id);
+create index assembly_component_product_index on assembly_component (product_id);
 
 
--- https://dba.stackexchange.com/questions/146906/insert-into-three-tables-with-many-to-many-from-one-table?
--- http://sqlfiddle.com/#!17/390a7/77
--- http://sqlfiddle.com/#!17/390a7/18
-
--- explain analyze
-
--- SELECT a.id, a.title, a.score
---      , ARRAY (
---         SELECT t.name
---         FROM   article_tag a_t
---                    JOIN   tag t ON t.id = a_t.tag_id
---         WHERE  a_t.article_id = a.id
---     -- ORDER  BY t.id  -- optionally sort array elements
---     ) AS names
--- FROM   article a
--- ORDER  BY a.score DESC
--- LIMIT  10;
+insert into assembly_component (id, assembly_id, product_id, quantity)
+values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001',
+        '00000000-0000-0000-0000-000000000001', 100),
+       ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001',
+        '00000000-0000-0000-0000-000000000003', 300),
+       ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002',
+        '00000000-0000-0000-0000-000000000002', 200),
+       ('00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000002',
+        '00000000-0000-0000-0000-000000000003', 300);

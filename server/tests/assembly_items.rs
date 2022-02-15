@@ -18,11 +18,13 @@ mod tests {
             query {
                 assembly(id: "00000000-0000-0000-0000-000000000001") {
                     id
-                    items {
+                    components {
                         id
-                        item
-                        cost
                         quantity
+                        product {
+                            id
+                            cost
+                        }                                               
                     }
                 }
             }
@@ -33,18 +35,22 @@ mod tests {
         let right = serde_json::json!({
            "assembly": {
                 "id": "00000000-0000-0000-0000-000000000001",
-                "items": [
+                "components": [
                     {
                         "id": "00000000-0000-0000-0000-000000000001",
-                        "item": "Item 1",
-                        "cost": 10,
-                        "quantity": 100
+                        "quantity": 100,
+                        "product": {
+                            "id": "00000000-0000-0000-0000-000000000001",
+                            "cost": 10
+                        }
                     },
                     {
                         "id": "00000000-0000-0000-0000-000000000003",
-                        "item": "Item 3",
-                        "cost": 30,
-                        "quantity": 300
+                        "quantity": 30,
+                        "product": {
+                            "id": "00000000-0000-0000-0000-000000000003",
+                            "cost": 300
+                        }
                     }
                 ]
             }
