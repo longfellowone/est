@@ -12,7 +12,7 @@ async fn main() -> hyper::Result<()> {
 
     let config = Configuration {
         http: Http {
-            host: "localhost".to_string(),
+            host: "0.0.0.0".to_string(),
             port: 8080,
         },
         postgres: Postgres {
