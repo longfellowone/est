@@ -10,6 +10,7 @@ RUN set -x\
  && cargo build --release
 
 COPY src src
+COPY migrations migrations
 COPY sqlx-data.json .
 ENV SQLX_OFFLINE true
 RUN set -x\
