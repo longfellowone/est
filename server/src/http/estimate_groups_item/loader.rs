@@ -21,7 +21,7 @@ impl Loader<Uuid> for GroupAssembliesLoader {
     type Error = FieldError;
 
     async fn load(&self, ids: &[Uuid]) -> Result<HashMap<Uuid, Self::Value>, Self::Error> {
-        let line_items = sqlx::query_as!(
+        let items = sqlx::query_as!(
             EstimateGroupItem,
             // language=PostgreSQL
             r#"
@@ -34,7 +34,7 @@ impl Loader<Uuid> for GroupAssembliesLoader {
         .fetch_all(&self.0)
         .await?;
 
-        Ok(line_items
+        Ok(items
             .into_iter()
             .into_group_map_by(|line_item| line_item.group_id))
     }
