@@ -27,14 +27,14 @@ impl App {
     pub fn new(config: Configuration, pool: PgPool) -> Self {
         let schema = graphql::schema(pool);
 
-        // let cors = CorsLayer::new()
-        //     .allow_methods(vec![Method::GET, Method::POST])
-        //     .allow_origin(any())
-        //     .allow_headers(any());
+        let cors = CorsLayer::new()
+            .allow_methods(vec![Method::GET, Method::POST])
+            .allow_origin(any())
+            .allow_headers(any());
 
         let middleware = ServiceBuilder::new()
             .layer(TraceLayer::new_for_http())
-            // .layer(cors)
+            .layer(cors)
             .layer(AddExtensionLayer::new(schema));
 
         let routes = Router::new().route("/", get(graphql::playground).post(graphql::handler));
