@@ -16,12 +16,12 @@ async fn main() -> hyper::Result<()> {
             port: 8080,
         },
         postgres: Postgres {
-            host: "localhost".to_string(),
-            port: 5432,
-            user: "postgres".to_string(),
-            password: "postgres".to_string(),
-            database: "postgres".to_string(),
-            sslmode: false,
+            host: "db-postgresql-sfo3-66943-do-user-3317000-0.b.db.ondigitalocean.com".to_string(),
+            port: 25060,
+            user: "doadmin".to_string(),
+            password: "odOAHxm1yf4jEFLr".to_string(),
+            database: "defaultdb".to_string(),
+            sslmode: true,
         },
     };
 
