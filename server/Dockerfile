@@ -18,7 +18,7 @@ RUN set -x\
  && cargo build --release
 
 FROM rust:1.58-slim
-COPY Config.toml .
+COPY migrations migrations
 COPY --from=builder /builder/target/release/server .
 
 EXPOSE 8080
